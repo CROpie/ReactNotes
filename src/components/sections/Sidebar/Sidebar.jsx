@@ -5,37 +5,39 @@ import Category from './Category'
 import NewCategory from './NewCategory'
 
 import { URL } from '../../../constants'
+import { useQuery } from '@tanstack/react-query'
 
 export default function Sidebar() {
-  const [categories, setCategories] = React.useState([])
-
   const [isNewCategory, setIsNewCategory] = React.useState(false)
 
-  React.useEffect(() => {
-    async function getCategories() {
-      const response = await fetch(`${URL}/category`)
-      if (!response.ok) {
-        console.log('something went wrong...')
-        return
-      }
-      const json = await response.json()
-      setCategories(json)
+  const { data: categories, status } = useQuery({
+    queryKey: ['categories'],
+    queryFn: getCategories,
+    staleTime: 1000 * 60 * 5,
+  })
+
+  async function getCategories() {
+    const response = await fetch(`${URL}/category`)
+    if (!response.ok) {
+      throw new Error('Network response was not ok.')
     }
-
-    getCategories()
-  }, [])
-
-  // console.log(categories)
+    return response.json()
+  }
 
   return (
     <Wrapper>
-      <SidebarList>
-        {categories.map((category) => (
-          <Category category={category} key={category.id} />
-        ))}
-        {isNewCategory && <NewCategory />}
-        <button onClick={() => setIsNewCategory(!isNewCategory)}>New Category</button>
-      </SidebarList>
+      {status === 'idle' && <p>...</p>}
+      {status === 'error' && <p>Error...</p>}
+      {status === 'loading' && <p>Loading...</p>}
+      {status === 'success' && (
+        <SidebarList>
+          {categories.map((category) => (
+            <Category category={category} key={category.id} />
+          ))}
+          {isNewCategory && <NewCategory setIsNewCategory={setIsNewCategory} />}
+          <button onClick={() => setIsNewCategory(!isNewCategory)}>New Category</button>
+        </SidebarList>
+      )}
     </Wrapper>
   )
 }

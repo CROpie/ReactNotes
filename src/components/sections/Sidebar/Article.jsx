@@ -19,7 +19,7 @@ export default function Article({ categoryId, category_name, articles }) {
           </SidebarSubListItemHeading>
         </SidebarSubListItem>
       ))}
-      {isNewArticle && <NewArticle categoryId={categoryId} />}
+      {isNewArticle && <NewArticle categoryId={categoryId} setIsNewArticle={setIsNewArticle} />}
       <button
         onClick={(e) => {
           setIsNewArticle(!isNewArticle)

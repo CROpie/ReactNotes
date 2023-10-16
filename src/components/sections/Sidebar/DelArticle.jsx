@@ -3,8 +3,12 @@ import styled from 'styled-components'
 
 import { URL } from '../../../constants'
 
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+
 export default function DelArticle({ articleId }) {
   const [delConfirmArticle, setDelConfirmArticle] = React.useState()
+
+  const queryClient = useQueryClient()
 
   async function handleDeleteArticle(articleId) {
     const response = await fetch(`${URL}/article/?article_id=${articleId}`, {
@@ -12,17 +16,25 @@ export default function DelArticle({ articleId }) {
       headers: { 'Content-Type': 'application/json' },
     })
     if (!response.ok) {
-      console.log('something went wrong..')
-      return
+      throw new Error('Network response was not ok.')
     }
-    const json = await response.json()
-    console.log(json)
+    return response.json()
   }
+
+  const mutation = useMutation({
+    mutationFn: async (articleId) => handleDeleteArticle(articleId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] })
+    },
+    onError: (error) => {
+      console.error('onError something went wrong...', error)
+    },
+  })
 
   return (
     <>
       {delConfirmArticle === articleId && (
-        <button onClick={() => handleDeleteArticle(articleId)}>DEL</button>
+        <button onClick={() => mutation.mutate(articleId)}>DEL</button>
       )}
 
       {delConfirmArticle !== articleId && (

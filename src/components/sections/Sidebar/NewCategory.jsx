@@ -3,26 +3,49 @@ import styled from 'styled-components'
 
 import { URL } from '../../../constants'
 
-export default function NewCategory() {
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+
+export default function NewCategory({ setIsNewCategory }) {
   const [categoryName, setCategoryName] = React.useState('')
 
-  async function handleSubmitNewCategory(e) {
-    e.preventDefault()
+  const queryClient = useQueryClient()
+
+  async function handleSubmitNewCategory() {
     const response = await fetch(`${URL}/category`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ category_name: categoryName }),
+      headers: { 'Content-Type': 'application/json' },
     })
     if (!response.ok) {
-      console.log('something went wrong..')
-      return
+      throw new Error('Network response was not ok.')
     }
-    const json = await response.json()
-    console.log(json)
+    return response.json()
   }
 
+  /* 2 things required for getting the error to work:
+  1) For fetch, 4xx & 5xx status codes don't give errors. So need to use if !response.ok throw new error
+  2) mutationFn: async () => handleSubmitNewCategory()
+  the arrow function automatically includes returning the value of the function, therefore will return the error to onError
+  Therefore if it is async () => { handleSubmitNewCategory() }, this doesn't return anything! So onSuccess will be triggered
+  */
+  const mutation = useMutation({
+    mutationFn: async () => handleSubmitNewCategory(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] })
+      setIsNewCategory(false)
+    },
+    onError: (error) => {
+      console.error('onError something went wrong...', error)
+    },
+  })
+
   return (
-    <NewCategoryForm onSubmit={handleSubmitNewCategory}>
+    <NewCategoryForm
+      onSubmit={(e) => {
+        e.preventDefault()
+        mutation.mutate()
+      }}
+    >
       <NewCategoryInput
         type="text"
         placeholder="Library"

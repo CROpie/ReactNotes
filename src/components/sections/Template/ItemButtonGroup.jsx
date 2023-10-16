@@ -5,14 +5,14 @@ import Icon from '../../icons/Icon'
 
 import DelItem from './DelItem'
 
-export default function ItemButtonGroup({ item_id, index, shiftPosition }) {
+export default function ItemButtonGroup({ item_id, index, shiftPosition, article_id }) {
   return (
     <ItemButtonWrapper>
       <SideButton onClick={() => shiftPosition(item_id, index, 'up')}>
         <Icon id="UpArrow" />
       </SideButton>
 
-      <DelItem item_id={item_id} />
+      <DelItem item_id={item_id} article_id={article_id} />
 
       <SideButton>
         <Icon id="DownArrow" onClick={() => shiftPosition(item_id, index, 'down')} />

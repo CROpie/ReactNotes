@@ -8,50 +8,59 @@ import { URL } from '../constants'
 import Icon from '../components/icons/Icon'
 import Section from '../components/sections/Template/Section'
 
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
+
 export default function Template() {
-  const [sections, setSections] = React.useState([])
+  /* CAUTION: useParams() gives strings */
+  const { article_id: articleID } = useParams()
+  const article_id = parseInt(articleID)
 
-  const { article_id } = useParams()
+  const queryClient = useQueryClient()
 
-  // 'idle' | 'loading' | 'success' | 'error
-  const [status, setStatus] = React.useState('idle')
+  const { data: sections, status } = useQuery({
+    queryKey: ['sections', article_id],
+    queryFn: getSections,
+    staleTime: 1000 * 60 * 5,
+  })
 
-  React.useEffect(() => {
-    async function getSections() {
-      setStatus('loading')
-      const response = await fetch(`${URL}/section?article_id=${article_id}`)
-      if (!response.ok) {
-        console.log('Something went wrong...')
-        setStatus('error')
-        return
-      }
-      const json = await response.json()
-
-      // ensure sorted by section_position and item_position
-      json.sort((a, b) => a.section_position - b.section_position)
-      json.forEach((section) => {
-        section.items.sort((a, b) => a.item_position - b.item_position)
-      })
-      setSections(json)
-      setStatus('success')
+  async function getSections() {
+    console.log('Fetching sections...')
+    const response = await fetch(`${URL}/section?article_id=${article_id}`)
+    if (!response.ok) {
+      throw new Error('Network response was not ok.')
     }
+    const json = await response.json()
 
-    getSections()
-  }, [article_id])
+    // ensure sorted by section_position and item_position
+    json.sort((a, b) => a.section_position - b.section_position)
+    json.forEach((section) => {
+      section.items.sort((a, b) => a.item_position - b.item_position)
+    })
+    return json
+  }
 
   async function createNewSection() {
+    console.log('new section ??')
     const response = await fetch(`${URL}/section`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ section_position: sections.length, article_id }),
     })
     if (!response.ok) {
-      console.log('something went wrong..')
-      return
+      throw new Error('Network response was not ok.')
     }
-    const json = await response.json()
-    console.log(json)
+    return response.json()
   }
+
+  const mutation = useMutation({
+    mutationFn: async () => createNewSection(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sections', article_id] })
+    },
+    onError: (error) => {
+      console.error('onError something went wrong...', error)
+    },
+  })
 
   return (
     <Wrapper>
@@ -66,7 +75,7 @@ export default function Template() {
             ))}
           </ul>
           <SideButtonWrapper>
-            <SideButtonNew onClick={createNewSection}>
+            <SideButtonNew onClick={() => mutation.mutate()}>
               <Icon id="PlusFolder" />
             </SideButtonNew>
           </SideButtonWrapper>

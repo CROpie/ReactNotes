@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-query": "^4.36.1",
     "prism-react-renderer": "^2.1.0",
     "prismjs": "^1.29.0",
     "react": "^18.2.0",

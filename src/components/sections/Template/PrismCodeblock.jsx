@@ -35,4 +35,5 @@ const Index = styled.span`
   opacity: 0.6;
   color: grey;
   padding-right: 16px;
+  user-select: none;
 `

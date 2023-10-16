@@ -3,8 +3,12 @@ import styled from 'styled-components'
 
 import { URL } from '../../../constants'
 
-export default function NewArticle({ categoryId }) {
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+
+export default function NewArticle({ categoryId, setIsNewArticle }) {
   const [articleName, setArticleName] = React.useState('')
+
+  const queryClient = useQueryClient()
 
   async function handleSubmitNewArticle(categoryId) {
     const response = await fetch(`${URL}/article`, {
@@ -13,18 +17,27 @@ export default function NewArticle({ categoryId }) {
       body: JSON.stringify({ article_name: articleName, category_id: categoryId }),
     })
     if (!response.ok) {
-      console.log('something went wrong..')
-      return
+      throw new Error('Network response was not ok.')
     }
-    const json = await response.json()
-    console.log(json)
+    return response.json()
   }
+
+  const mutation = useMutation({
+    mutationFn: async (categoryId) => handleSubmitNewArticle(categoryId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] })
+      setIsNewArticle(false)
+    },
+    onError: (error) => {
+      console.error('onError something went wrong...', error)
+    },
+  })
 
   return (
     <NewArticleForm
       onSubmit={(e) => {
         e.preventDefault()
-        handleSubmitNewArticle(categoryId)
+        mutation.mutate(categoryId)
       }}
     >
       <NewArticleInput

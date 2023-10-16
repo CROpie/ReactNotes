@@ -5,22 +5,38 @@ import { URL } from '../../../constants'
 
 import Icon from '../../icons/Icon'
 
-export default function DelSection({ section_id }) {
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+
+export default function DelSection({ section_id, article_id }) {
+  const queryClient = useQueryClient()
+
+  console.log('DelSection: ', article_id)
+
   async function handleDeleteSection(section_id) {
+    console.log('deleting section?')
     const response = await fetch(`${URL}/section/?section_id=${section_id}`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
     })
     if (!response.ok) {
-      console.log('something went wrong..')
-      return
+      throw new Error('Network response was not ok.')
     }
-    const json = await response.json()
-    console.log(json)
+    return response.json()
   }
+
+  const mutation = useMutation({
+    mutationFn: async (section_id) => handleDeleteSection(section_id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sections', article_id] })
+    },
+    onError: (error) => {
+      console.error('onError something went wrong...', error)
+    },
+  })
+
   return (
     <SideButtonWrapper>
-      <SideButton onClick={() => handleDeleteSection(section_id)}>
+      <SideButton onClick={() => mutation.mutate(section_id)}>
         <Icon id="Trash" />
       </SideButton>
     </SideButtonWrapper>

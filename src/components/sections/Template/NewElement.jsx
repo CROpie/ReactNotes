@@ -7,9 +7,12 @@ import { H1_style, P_style } from '../../styles/mixins'
 
 import Icon from '../../icons/Icon'
 
-export default function NewElement({ item_position, section_id, newElement }) {
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+
+export default function NewElement({ item_position, section_id, newElement, article_id }) {
   const [text, setText] = React.useState('')
-  console.log(typeof text)
+
+  const queryClient = useQueryClient()
 
   async function saveNewElement() {
     const item = {
@@ -25,20 +28,29 @@ export default function NewElement({ item_position, section_id, newElement }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(item),
     })
-    console.log(item)
+
     if (!response.ok) {
-      console.log('something went wrong..')
-      return
+      throw new Error('Network response was not ok.')
     }
-    const json = await response.json()
-    console.log(json)
+    return response.json()
   }
+
+  const mutation = useMutation({
+    mutationFn: async () => saveNewElement(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sections', article_id] })
+      setText('')
+    },
+    onError: (error) => {
+      console.error('onError something went wrong...', error)
+    },
+  })
 
   return (
     <>
       {newElement && (
         <SideButtonWrapper>
-          <SideButton onClick={saveNewElement}>
+          <SideButton onClick={() => mutation.mutate()}>
             <Icon id="Save" />
           </SideButton>
         </SideButtonWrapper>

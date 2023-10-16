@@ -12,8 +12,12 @@ import ElementSelect from './ElementSelect'
 import NewElementButton from './NewElementButton'
 import ItemButtonGroup from './ItemButtonGroup'
 
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+
 export default function Section({ section }) {
-  const { items, id: section_id } = section
+  const { items, id: section_id, article_id } = section
+
+  const queryClient = useQueryClient()
 
   const [newElement, setNewElement] = React.useState()
   const [newElementPosition, setNewElementPosition] = React.useState()
@@ -47,6 +51,10 @@ export default function Section({ section }) {
       swapItemId = items[index + 1].id
     }
 
+    mutation.mutate({ item_id, swapItemId })
+  }
+
+  async function patchItemPosition({ item_id, swapItemId }) {
     const response = await fetch(
       `${URL}/itemposition/?item_1_id=${item_id}&item_2_id=${swapItemId}`,
       {
@@ -55,12 +63,20 @@ export default function Section({ section }) {
       }
     )
     if (!response.ok) {
-      console.log('something went wrong..')
-      return
+      throw new Error('Network response was not ok.')
     }
-    const json = await response.json()
-    console.log(json)
+    return response.json()
   }
+
+  const mutation = useMutation({
+    mutationFn: async ({ item_id, swapItemId }) => patchItemPosition({ item_id, swapItemId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sections', article_id] })
+    },
+    onError: (error) => {
+      console.error('onError something went wrong...', error)
+    },
+  })
 
   const renderElement = (element, text) => {
     switch (element) {
@@ -81,7 +97,12 @@ export default function Section({ section }) {
         {/* The data itself */}
         {items.map(({ element, text, id: item_id }, index) => (
           <ItemWrapper key={item_id}>
-            <ItemButtonGroup item_id={item_id} index={index} shiftPosition={shiftPosition} />
+            <ItemButtonGroup
+              item_id={item_id}
+              index={index}
+              shiftPosition={shiftPosition}
+              article_id={article_id}
+            />
             <SectionListItem> {renderElement(element, text)}</SectionListItem>
           </ItemWrapper>
         ))}
@@ -92,6 +113,7 @@ export default function Section({ section }) {
             <NewElement
               item_position={calculateNewItemPosition()}
               section_id={section_id}
+              article_id={article_id}
               newElement={newElement}
             />
           )}
@@ -109,7 +131,7 @@ export default function Section({ section }) {
         {/* Allow removal of sections only when they have no items remaining */}
         {items.length < 1 && (
           <ItemWrapper>
-            <DelSection section_id={section_id} />
+            <DelSection section_id={section_id} article_id={article_id} />
           </ItemWrapper>
         )}
       </SectionList>
@@ -119,7 +141,7 @@ export default function Section({ section }) {
 
 const SectionWrapper = styled.section`
   padding-block: 16px;
-  border: 1px dotted lightblue;
+  border-top: 2px dotted lightblue;
 `
 
 const SectionList = styled.ul`
@@ -139,7 +161,6 @@ const P = styled.p`
 const ItemWrapper = styled.div`
   display: grid;
   grid-template-columns: 4rem 1fr;
-  border: 1px solid grey;
 `
 
 const SectionListItem = styled.li`
