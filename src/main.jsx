@@ -1,9 +1,37 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import './index.css'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { GlobalStyles } from './components/styles/GlobalStyles'
+import '../index.css'
+
+import { Root, Template } from './routes'
+
+import { SidebarCtxProvider } from './contexts/SidebarCtx'
+import Test from './routes/Test'
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Root />,
+    children: [
+      {
+        path: ':category_name/:article_id',
+        element: <Template />,
+        children: [],
+      },
+    ],
+  },
+  {
+    path: '/test',
+    element: <Test />,
+  },
+])
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <h1>React Notes</h1>
+    <SidebarCtxProvider>
+      <GlobalStyles />
+      <RouterProvider router={router} />
+    </SidebarCtxProvider>
   </React.StrictMode>
 )
