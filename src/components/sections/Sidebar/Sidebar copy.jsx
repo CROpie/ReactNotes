@@ -7,46 +7,28 @@ import NewCategory from './NewCategory'
 import { URL } from '../../../constants'
 import { useQuery } from '@tanstack/react-query'
 
-function categoryQuery() {
-  return { queryKey: ['categories'], queryFn: getCategories, staleTime: 1000 * 60 * 5 }
-}
-
-async function getCategories() {
-  const response = await fetch(`${URL}/category`)
-  if (!response.ok) {
-    throw new Error('Network response was not ok.')
-  }
-  return response.json()
-}
-
 export const sidebarLoader = (queryClient) => async () => {
   console.log('inside loader')
-  const query = categoryQuery()
-
-  const data = queryClient.getQueryData(query.queryKey) ?? (await queryClient.fetchQuery(query))
-  console.log(data)
-
-  // const queriesCache = queryClient.getQueryData({ queryKey: ['categories'] })
-  // console.log('queriesCache: ', queriesCache)
-  // const queriesFetch = await queryClient.fetchQuery({
-  //   queryKey: ['categories'],
-  //   queryFn: getCategories,
-  // })
-  // console.log('queriesFetch: ', queriesFetch)
-  return data
+  console.log(queryClient)
+  return null
 }
 
 export default function Sidebar() {
   const [isNewCategory, setIsNewCategory] = React.useState(false)
 
-  const query = categoryQuery()
-  const { data: categories, status } = useQuery(query)
-  console.log(categories)
-  // const { data: categories, status } = useQuery({
-  //   queryKey: ['categories'],
-  //   queryFn: getCategories,
-  //   staleTime: 1000 * 60 * 5,
-  // })
+  const { data: categories, status } = useQuery({
+    queryKey: ['categories'],
+    queryFn: getCategories,
+    staleTime: 1000 * 60 * 5,
+  })
+
+  async function getCategories() {
+    const response = await fetch(`${URL}/category`)
+    if (!response.ok) {
+      throw new Error('Network response was not ok.')
+    }
+    return response.json()
+  }
 
   return (
     <Wrapper>

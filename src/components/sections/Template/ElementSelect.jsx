@@ -1,4 +1,4 @@
-const options = ['select element: ', 'h1', 'p', 'code']
+const options = ['select element: ', 'h1', 'p', 'code', 'img']
 
 export default function ElementSelect({ setNewElement }) {
   return (

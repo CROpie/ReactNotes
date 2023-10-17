@@ -11,17 +11,24 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 export default function NewElement({ item_position, section_id, newElement, article_id }) {
   const [text, setText] = React.useState('')
+  const [selectedImage, setSelectedImage] = React.useState(null)
 
   const queryClient = useQueryClient()
 
   async function saveNewElement() {
+    let image_id = null
+    if (selectedImage) {
+      image_id = await saveNewElementImage()
+    }
     const item = {
       item_position,
       section_id,
       element: newElement,
       url: null,
       text,
+      image_id,
     }
+    console.log(item)
 
     const response = await fetch(`${URL}/item`, {
       method: 'POST',
@@ -33,6 +40,18 @@ export default function NewElement({ item_position, section_id, newElement, arti
       throw new Error('Network response was not ok.')
     }
     return response.json()
+  }
+
+  async function saveNewElementImage() {
+    const formData = new FormData()
+    formData.append('file', selectedImage)
+    const response = await fetch(`${URL}/uploadfile`, {
+      method: 'POST',
+      body: formData,
+    })
+    const json = await response.json()
+    console.log(json)
+    return json.id
   }
 
   const mutation = useMutation({
@@ -63,6 +82,9 @@ export default function NewElement({ item_position, section_id, newElement, arti
       )}
       {newElement === 'code' && (
         <textarea placeholder="TEXT" value={text} onChange={(e) => setText(e.target.value)} />
+      )}
+      {newElement === 'img' && (
+        <input type="file" onChange={(e) => setSelectedImage(e.target.files[0])} />
       )}
     </>
   )

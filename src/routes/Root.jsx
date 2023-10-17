@@ -4,13 +4,13 @@ import { Header } from '../components/sections'
 
 import Sidebar from '../components/sections/Sidebar/Sidebar'
 
-export default function Root() {
+export default function Root({ queryClient }) {
   return (
     <Wrapper>
       <Header />
       <ContentWrapper>
         <SidebarWrapper>
-          <Sidebar />
+          <Sidebar queryClient={queryClient} />
         </SidebarWrapper>
 
         <OutletWrapper>

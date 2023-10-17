@@ -7,7 +7,7 @@ export default function Header() {
       <LHS>
         <Link to="/">LOGO</Link>
       </LHS>
-      <h2>React Notes</h2>
+      <Link to="/test">Test Page</Link>
     </Wrapper>
   )
 }

@@ -12,7 +12,10 @@ import ElementSelect from './ElementSelect'
 import NewElementButton from './NewElementButton'
 import ItemButtonGroup from './ItemButtonGroup'
 
+import Icon from '../../icons/Icon'
+
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import ResizeTextArea from '../../utils/ResizeTextArea'
 
 export default function Section({ section }) {
   const { items, id: section_id, article_id } = section
@@ -21,6 +24,9 @@ export default function Section({ section }) {
 
   const [newElement, setNewElement] = React.useState()
   const [newElementPosition, setNewElementPosition] = React.useState()
+
+  const [isEditing, setIsEditing] = React.useState(0)
+  const [editingText, setEditingText] = React.useState('')
 
   function handleClickCreateNewElement(item_id) {
     if (item_id === newElementPosition) {
@@ -78,14 +84,86 @@ export default function Section({ section }) {
     },
   })
 
-  const renderElement = (element, text) => {
+  async function patchItemText({ item_id }) {
+    const data = JSON.stringify({ id: item_id, text: editingText })
+    const response = await fetch(`${URL}/itemtext/`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: item_id, text: editingText }),
+    })
+    if (!response.ok) {
+      throw new Error('Network response was not ok.')
+    }
+    return response.json()
+  }
+
+  const editMutation = useMutation({
+    mutationFn: async ({ item_id }) => patchItemText({ item_id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sections', article_id] })
+      setIsEditing(0)
+      setEditingText('')
+    },
+    onError: (error) => {
+      console.error('onError something went wrong...', error)
+    },
+  })
+
+  const renderElement = (element, text, item_id, image) => {
     switch (element) {
       case 'h1':
-        return <H1>{text}</H1>
+        return (
+          <H1
+            onDoubleClick={() => {
+              setIsEditing(item_id)
+              setEditingText(text)
+            }}
+          >
+            {text}
+          </H1>
+        )
       case 'p':
-        return <P>{text}</P>
+        return (
+          <P
+            onDoubleClick={() => {
+              setIsEditing(item_id)
+              setEditingText(text)
+            }}
+          >
+            {text}
+          </P>
+        )
       case 'code':
-        return <PrismCodeblock codeBlock={text} />
+        return (
+          <div
+            onDoubleClick={() => {
+              setIsEditing(item_id)
+              setEditingText(text)
+            }}
+          >
+            <PrismCodeblock codeBlock={text} />
+          </div>
+        )
+      case 'img':
+        return (
+          <ImageContainer>
+            <Image src={image} alt="" height="100%" />
+          </ImageContainer>
+        )
+      default:
+        return <div>{text}</div>
+    }
+  }
+
+  const renderEditElement = (element, text, item_id) => {
+    switch (element) {
+      case 'h1':
+        return <InputH1 value={editingText} onChange={(e) => setEditingText(e.target.value)} />
+      case 'p':
+        return <InputP value={editingText} onChange={(e) => setEditingText(e.target.value)} />
+      case 'code':
+        return <ResizeTextArea text={editingText} setText={setEditingText} />
+      // return <PrismCodeblock codeBlock={text} />
       default:
         return <div>{text}</div>
     }
@@ -95,7 +173,7 @@ export default function Section({ section }) {
     <SectionWrapper>
       <SectionList>
         {/* The data itself */}
-        {items.map(({ element, text, id: item_id }, index) => (
+        {items.map(({ element, text, id: item_id, image }, index) => (
           <ItemWrapper key={item_id}>
             <ItemButtonGroup
               item_id={item_id}
@@ -103,7 +181,27 @@ export default function Section({ section }) {
               shiftPosition={shiftPosition}
               article_id={article_id}
             />
-            <SectionListItem> {renderElement(element, text)}</SectionListItem>
+            {isEditing !== item_id && (
+              <SectionListItem> {renderElement(element, text, item_id, image)}</SectionListItem>
+            )}
+            {isEditing === item_id && (
+              <div>
+                <SectionListItem>{renderEditElement(element, text, item_id)}</SectionListItem>
+                <EditButtonsWrapper>
+                  <EditSaveWrapper onClick={() => editMutation.mutate({ item_id })}>
+                    <Icon id="Save" />
+                  </EditSaveWrapper>
+                  <EditCancelWrapper
+                    onClick={() => {
+                      setIsEditing(0)
+                      setEditingText('')
+                    }}
+                  >
+                    <Icon id="X" />
+                  </EditCancelWrapper>
+                </EditButtonsWrapper>
+              </div>
+            )}
           </ItemWrapper>
         ))}
 
@@ -153,7 +251,15 @@ const H1 = styled.h1`
   ${H1_style}
 `
 
+const InputH1 = styled.input`
+  ${H1_style}
+`
+
 const P = styled.p`
+  font-size: 1.25rem;
+  ${P_style}
+`
+const InputP = styled.input`
   font-size: 1.25rem;
   ${P_style}
 `
@@ -165,4 +271,39 @@ const ItemWrapper = styled.div`
 
 const SectionListItem = styled.li`
   align-self: center;
+`
+
+const EditButtonsWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  justify-content: center;
+  margin: 0 auto;
+
+  margin-top: 1rem;
+`
+
+const EditSaveWrapper = styled.button`
+  height: 2rem;
+
+  &:hover {
+    color: lime;
+  }
+`
+
+const EditCancelWrapper = styled.button`
+  height: 2rem;
+  &:hover {
+    color: red;
+  }
+`
+
+const ImageContainer = styled.div`
+  height: 500px;
+  margin: 0 auto;
+  border: 2px solid lime;
+`
+
+const Image = styled.img`
+  margin: 0 auto;
 `

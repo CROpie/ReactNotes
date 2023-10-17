@@ -8,7 +8,7 @@ export default function PrismCodeblock({ codeBlock }) {
         <Wrapper style={style}>
           {tokens.map((line, i) => (
             <Test key={i} {...getLineProps({ line })}>
-              <Index>{i + 1}</Index>
+              {/* <Index>{i + 1}</Index> */}
               {line.map((token, key) => (
                 <span key={key} {...getTokenProps({ token })} />
               ))}
