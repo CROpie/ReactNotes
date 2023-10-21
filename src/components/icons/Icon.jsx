@@ -7,6 +7,9 @@ import PlusFolder from './PlusFolder'
 import PlusPage from './PlusPage'
 import UpArrow from './UpArrow'
 import DownArrow from './DownArrow'
+import MinusPage from './MinusPage'
+import Paste from './Paste'
+import Copy from './Copy'
 const icons = {
   Save,
   Trash,
@@ -15,6 +18,9 @@ const icons = {
   PlusPage,
   UpArrow,
   DownArrow,
+  MinusPage,
+  Paste,
+  Copy,
 }
 
 const Icon = ({ id, height, color, size, strokeWidth, ...delegated }) => {

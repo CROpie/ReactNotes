@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-export default function ResizeTextArea({ text, setText }) {
+export default function ResizeTextAreaP({ text, setText }) {
   return (
     <GrowWrap>
       <VisText>{text}</VisText>
@@ -19,14 +19,11 @@ const VisText = styled.div`
   white-space: pre-wrap;
   visibility: hidden;
   border: 2px solid white;
-  /* padding: 0.5rem; */
-  font: inherit;
+
   grid-area: 1 / 1 / 2 / 2;
+  padding-block: 0.5rem;
 
   font-size: 1.25rem;
-  line-height: 1.5;
-  font-family: 'Sono', monospace;
-  font-weight: 500;
 
   padding-left: 4px;
 `
@@ -36,14 +33,11 @@ const Text = styled.textarea`
   overflow: hidden;
 
   border: 2px solid white;
-  /* padding: 0.5rem; */
-  font: inherit;
+
   grid-area: 1 / 1 / 2 / 2;
+  padding-block: 0.5rem;
 
   font-size: 1.25rem;
-  line-height: 1.5;
-  font-family: 'Sono', monospace;
-  font-weight: 500;
 
   padding-left: 4px;
 

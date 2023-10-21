@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import Article from './Article'
+import Articles from './Articles'
 import DelCategory from './DelCategory'
 
 import { SidebarContext } from '../../../contexts/SidebarCtx'
@@ -20,29 +20,118 @@ export default function Category({ category }) {
   }
 
   return (
-    <SidebarListItem>
-      <SidebarListItemHeading>
-        <button onClick={() => handleOpenCategory(categoryId)}>{category_name}</button>
+    <CategoryListItem>
+      <CategoryButton onClick={() => handleOpenCategory(categoryId)}>
+        <p>{category_name}</p>
 
         <DelCategory categoryId={categoryId} />
-      </SidebarListItemHeading>
+      </CategoryButton>
       {openCategory === categoryId && (
-        <Article articles={articles} categoryId={categoryId} category_name={category_name} />
+        <Articles articles={articles} categoryId={categoryId} category_name={category_name} />
       )}
-    </SidebarListItem>
+    </CategoryListItem>
   )
 }
 
-const SidebarListItem = styled.li`
+const CategoryListItem = styled.li`
   text-transform: capitalize;
   width: 100%;
 `
 
-const SidebarListItemHeading = styled.div`
+const CategoryButton = styled.button`
+  width: 100%;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 2px solid black;
+
+  font-size: 1.5rem;
+  font-weight: 700;
+
+  padding: 10px 16px;
+
+  border: 2px solid var(--primary);
+  color: hsl(var(--black));
+  background: var(--primary);
+
+  & > div {
+    transition: opacity 1s;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &:hover > div {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  &:hover {
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    background: hsl(var(--black));
+  }
+`
+
+/*
+const CategoryButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  color: inherit;
+
+  font-size: 1.5rem;
+  font-weight: 700;
+
+  padding-inline: 1rem;
+  padding-block: 10px;
+
+  border: 2px solid hsl(var(--white));
+  color: hsl(var(--white));
+  background: black;
+
+  &:hover {
+    background: hsl(var(--white));
+    border: 2px solid black;
+    color: black;
+  }
+`
+*/
+
+/*
+  return (
+    <SidebarListItem>
+      <SidebarListItemBlock>
+        <CategoryButton onClick={() => handleOpenCategory(categoryId)}>
+          {category_name}
+        </CategoryButton>
+
+        <DelCategory categoryId={categoryId} />
+      </SidebarListItemBlock>
+      {openCategory === categoryId && (
+        <Articles articles={articles} categoryId={categoryId} category_name={category_name} />
+      )}
+    </SidebarListItem>
+  )
+  */
+
+/*
+
+
+const CategoryButton = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding-inline: 1rem;
+
+  border: 2px solid hsl(var(--black));
+  color: hsl(var(--black));
+  background: var(--primary);
+
+  font-size: 1.5rem;
+  font-weight: 700;
 
   & > button:last-of-type {
     transition: opacity 1s;
@@ -54,4 +143,12 @@ const SidebarListItemHeading = styled.div`
     opacity: 1;
     pointer-events: auto;
   }
+
+  &:hover {
+    background: hsl(var(--black));
+    border: 2px solid var(--primary);
+    color: var(--primary);
+  }
 `
+
+*/

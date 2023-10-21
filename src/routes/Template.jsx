@@ -1,14 +1,13 @@
 import React from 'react'
 import styled from 'styled-components'
 
+import Content from '../components/sections/Content/Content'
+
 import { useParams } from 'react-router-dom'
 
-import { URL as url } from '../constants'
+import { BaseURL } from '../constants'
 
-import Icon from '../components/icons/Icon'
-import Section from '../components/sections/Template/Section'
-
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 
 function generateImageUrl(image) {
   const binaryImage = atob(image)
@@ -22,9 +21,7 @@ function generateImageUrl(image) {
 }
 
 async function getSections(article_id) {
-  console.log('getSections: ', article_id)
-  console.log('Fetching sections...')
-  const response = await fetch(`${url}/section?article_id=${article_id}`)
+  const response = await fetch(`${BaseURL}/section?article_id=${article_id}`)
   if (!response.ok) {
     throw new Error('Network response was not ok.')
   }
@@ -47,7 +44,7 @@ async function getSections(article_id) {
 }
 
 function sectionsQuery(article_id) {
-  console.log('query: ', typeof article_id)
+  // console.log('query: ', typeof article_id)
   return {
     queryKey: ['sections', article_id],
     queryFn: async () => getSections(article_id),
@@ -70,16 +67,28 @@ export const contentLoader =
   }
 
 export default function Template() {
-  console.log('template..')
-  /* CAUTION: useParams() gives strings */
   const { article_id: articleID } = useParams()
   const article_id = parseInt(articleID)
 
-  const queryClient = useQueryClient()
   const query = sectionsQuery(article_id)
 
   const { data: sections, status } = useQuery(query)
+  return (
+    <Wrapper>
+      {status === 'idle' && <p>...</p>}
+      {status === 'loading' && <p>Loading...</p>}
+      {status === 'error' && <p>Something went wrong...</p>}
+      {status === 'success' && <Content sections={sections} />}
+    </Wrapper>
+  )
+}
 
+const Wrapper = styled.section`
+  margin: 0 auto;
+  max-width: 1200px;
+`
+
+/*
   // function generateImageUrl(image) {
   //   const binaryImage = atob(image)
   //   const bytes = new Uint8Array(binaryImage.length)
@@ -114,73 +123,4 @@ export default function Template() {
   //   })
   //   return json
   // }
-
-  async function createNewSection() {
-    console.log('new section ??')
-    const response = await fetch(`${url}/section`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ section_position: sections.length, article_id }),
-    })
-    if (!response.ok) {
-      throw new Error('Network response was not ok.')
-    }
-    return response.json()
-  }
-
-  const mutation = useMutation({
-    mutationFn: async () => createNewSection(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sections', article_id] })
-    },
-    onError: (error) => {
-      console.error('onError something went wrong...', error)
-    },
-  })
-
-  return (
-    <Wrapper>
-      {status === 'idle' && <p>...</p>}
-      {status === 'loading' && <p>Loading...</p>}
-      {status === 'error' && <p>Something went wrong...</p>}
-      {status === 'success' && (
-        <>
-          <ul>
-            {sections.map((section) => (
-              <Section section={section} key={section.id} />
-            ))}
-          </ul>
-          <SideButtonWrapper>
-            <SideButtonNew onClick={() => mutation.mutate()}>
-              <Icon id="PlusFolder" />
-            </SideButtonNew>
-          </SideButtonWrapper>
-        </>
-      )}
-    </Wrapper>
-  )
-}
-
-const Wrapper = styled.section`
-  margin: 0 auto;
-  max-width: 1200px;
-`
-
-const SideButtonWrapper = styled.div`
-  display: grid;
-  place-items: center;
-`
-
-const SideButton = styled.button`
-  height: 2rem;
-
-  &:hover {
-    color: red;
-  }
-`
-
-const SideButtonNew = styled(SideButton)`
-  &:hover {
-    color: lime;
-  }
-`
+  */

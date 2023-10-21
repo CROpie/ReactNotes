@@ -1,11 +1,34 @@
 export const H1_style = `
   text-align: center;
+  font-size: 3rem;
+  font-weight: 900;
+  border: 2px solid white;
+  text-transform: uppercase;
+  color: hsl(var(--purple));
+  
+`
+
+export const H2_style = `
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-decoration: underline;
+  color: hsl(var(--green));
+`
+
+export const H3_style = `
+  text-align: center;
   font-size: 1.5rem;
   font-weight: 500;
+  text-transform: uppercase;
+  color: hsl(var(--green-hover));
 `
 
 export const P_style = `
   font-size: 1.25rem;
+  line-height: 1;
+  
 `
 
 /////////////////////////////////

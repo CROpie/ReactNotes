@@ -1,47 +1,54 @@
 import React from 'react'
 import styled from 'styled-components'
-import NewArticle from './NewArticle'
 import DelArticle from './DelArticle'
 
 import { Link } from 'react-router-dom'
+import { SidebarContext } from '../../../contexts/SidebarCtx'
 
-export default function Article({ categoryId, category_name, articles }) {
-  const [isNewArticle, setIsNewArticle] = React.useState(false)
+export default function Article({ article, category_name }) {
+  const { id: articleId, article_name } = article
+
+  const { setSelectedArticle } = React.useContext(SidebarContext)
 
   return (
-    <SidebarSubList>
-      {articles.map(({ id: articleId, article_name }) => (
-        <SidebarSubListItem key={articleId}>
-          <SidebarSubListItemHeading>
-            <Link to={`${category_name}/${articleId}`}>{article_name}</Link>
-
-            <DelArticle articleId={articleId} />
-          </SidebarSubListItemHeading>
-        </SidebarSubListItem>
-      ))}
-      {isNewArticle && <NewArticle categoryId={categoryId} setIsNewArticle={setIsNewArticle} />}
-      <button
-        onClick={(e) => {
-          setIsNewArticle(!isNewArticle)
+    <SidebarSubListItem>
+      <ArticleButton
+        to={`${category_name}/${articleId}/${article_name}`}
+        onClick={() => {
+          setSelectedArticle(article_name)
         }}
       >
-        New Article
-      </button>
-    </SidebarSubList>
+        <LinkText>{article_name}</LinkText>
+
+        <DelArticle articleId={articleId} />
+      </ArticleButton>
+    </SidebarSubListItem>
   )
 }
 
-const SidebarSubList = styled.ul`
-  padding-inline: 16px;
-  font-size: 1rem;
-`
-
 const SidebarSubListItem = styled.li``
 
-const SidebarSubListItemHeading = styled.div`
+const ArticleButton = styled(Link)`
+  width: 100%;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  border: 2px solid hsl(var(--primary-hover));
+  color: hsl(var(--black));
+  background: var(--primary-hover);
+
+  font-size: 1.125rem;
+  font-weight: 500;
+
+  padding: 4px 16px;
+
+  &:hover {
+    background: hsl(var(--black));
+    border: 2px solid hsl(var(--primary-hover));
+    color: var(--primary-hover);
+  }
 
   & > button:last-of-type {
     transition: opacity 1s;
@@ -54,3 +61,21 @@ const SidebarSubListItemHeading = styled.div`
     pointer-events: auto;
   }
 `
+
+const LinkText = styled.p`
+  color: inherit;
+`
+
+/*
+
+  return (
+    <SidebarSubListItem>
+      <ArticleButton>
+        <ArticleLink to={`${category_name}/${articleId}`}>{article_name}</ArticleLink>
+
+        <DelArticle articleId={articleId} />
+      </ArticleButton>
+    </SidebarSubListItem>
+  )
+
+  */

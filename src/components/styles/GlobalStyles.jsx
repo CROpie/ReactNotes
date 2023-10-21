@@ -135,12 +135,29 @@ table {
 :root {
   --radius: 0.5rem;
   --sidebar-width: 15rem;
+  --header-height: 3rem;
 
   /* colours */
+    --dark-grey: 248 10% 15%;
+    --grey: 251 9% 53%;
+    --white: 252 11% 91%;
+    /* --black: 248 15% 11%; */
+    --green: 127 100% 82%;
+    --red: 0 91% 63%;
+    --orange: 13 95% 66%;
+    --yellow: 42 91% 68%;
+    --black: 0 0% 0%;
+   
 
-/*    ### Primary */
 
-/* ### Neutral */
+   /* --purple: 250 100% 82%; */
+   --purple: 264 100% 64%;
+
+    --text-color: hsl(var(--white));
+    --content-bg: hsl(var(--dark-grey));
+    --primary: hsl(var(--green));
+    --primary-hover: hsl(var(--green)/0.75);
+    --highlight: hsl(var(--purple));
 
 
 /* typography */
@@ -169,13 +186,16 @@ body,
 }
 
 body {
-  background: var(--light-grey);
+  background: hsl(var(--black));
+  color: hsl(var(--white));
+  font-family: JetBrains;
+  font-weight: 500;
 }
 
 #root {
   isolation: isolate;
-  font-family: Ubuntu;
-  font-weight: 400;
+  /* font-family: Ubuntu;
+  font-weight: 400; */
 }
 
 a {

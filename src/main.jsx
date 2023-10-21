@@ -5,13 +5,14 @@ import { GlobalStyles } from './components/styles/GlobalStyles'
 import '../index.css'
 
 import { Root, Template } from './routes'
-import { sidebarLoader } from './components/sections/Sidebar/Sidebar'
+import { sidebarLoader } from './routes/Root'
 import { contentLoader } from './routes/Template'
 
 import { SidebarCtxProvider } from './contexts/SidebarCtx'
 import Test from './routes/Test'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ContextMenuCtxProvider } from './contexts/ContextMenuCtx'
 
 const queryClient = new QueryClient()
 
@@ -22,7 +23,7 @@ const router = createBrowserRouter([
     loader: sidebarLoader(queryClient),
     children: [
       {
-        path: ':category_name/:article_id',
+        path: ':category_name/:article_id/:article_name',
         element: <Template />,
         loader: contentLoader(queryClient),
       },
@@ -37,10 +38,12 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <SidebarCtxProvider>
-        <GlobalStyles />
-        <RouterProvider router={router} />
-      </SidebarCtxProvider>
+      <ContextMenuCtxProvider>
+        <SidebarCtxProvider>
+          <GlobalStyles />
+          <RouterProvider router={router} />
+        </SidebarCtxProvider>
+      </ContextMenuCtxProvider>
     </QueryClientProvider>
   </React.StrictMode>
 )

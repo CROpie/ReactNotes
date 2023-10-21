@@ -1,1 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Sono&display=swap');
+
+@font-face {
+  font-family: 'JetBrains';
+  src: local('JetBrains'), url('src/fonts/JetBrainsMono-VariableFont_wght.ttf') format('truetype'),
+    url('src/fonts/JetBrainsMono-Italic-VariableFont_wght.ttf') format('truetype');
+}

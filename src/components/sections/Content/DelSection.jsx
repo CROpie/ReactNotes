@@ -1,20 +1,22 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { URL } from '../../../constants'
+import { BaseURL } from '../../../constants'
 
 import Icon from '../../icons/Icon'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-export default function DelSection({ section_id, article_id }) {
+import { useParams } from 'react-router-dom'
+
+export default function DelSection({ section_id }) {
+  const { article_id: articleID } = useParams()
+  const article_id = parseInt(articleID)
+
   const queryClient = useQueryClient()
 
-  console.log('DelSection: ', article_id)
-
-  async function handleDeleteSection(section_id) {
-    console.log('deleting section?')
-    const response = await fetch(`${URL}/section/?section_id=${section_id}`, {
+  async function deleteSection(section_id) {
+    const response = await fetch(`${BaseURL}/section/?section_id=${section_id}`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
     })
@@ -25,7 +27,7 @@ export default function DelSection({ section_id, article_id }) {
   }
 
   const mutation = useMutation({
-    mutationFn: async (section_id) => handleDeleteSection(section_id),
+    mutationFn: async (section_id) => deleteSection(section_id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sections', article_id] })
     },
@@ -50,6 +52,7 @@ const SideButtonWrapper = styled.div`
 
 const SideButton = styled.button`
   height: 2rem;
+  color: var(--text-color);
 
   &:hover {
     color: red;

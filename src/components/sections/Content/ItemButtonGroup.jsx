@@ -5,14 +5,14 @@ import Icon from '../../icons/Icon'
 
 import DelItem from './DelItem'
 
-export default function ItemButtonGroup({ item_id, index, shiftPosition, article_id }) {
+export default function ItemButtonGroup({ item_id, index, shiftPosition }) {
   return (
     <ItemButtonWrapper>
       <SideButton onClick={() => shiftPosition(item_id, index, 'up')}>
         <Icon id="UpArrow" />
       </SideButton>
 
-      <DelItem item_id={item_id} article_id={article_id} />
+      <DelItem item_id={item_id} />
 
       <SideButton>
         <Icon id="DownArrow" onClick={() => shiftPosition(item_id, index, 'down')} />
@@ -23,6 +23,7 @@ export default function ItemButtonGroup({ item_id, index, shiftPosition, article
 
 const SideButton = styled.button`
   height: 1rem;
+  color: var(--text-color);
 
   &:hover {
     color: red;
