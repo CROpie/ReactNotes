@@ -4,15 +4,36 @@ import NewArticle from './NewArticle'
 
 import Article from './Article'
 import Icon from '../../icons/Icon'
+
+import ContextMenuProvider from '../../utils/ContextMenuProvider'
+
+import { calculateNeighbours } from '../../utils/calculateNeighbours'
+import { calculateNewPosition } from '../../utils/calcNewPosition'
+
 export default function Articles({ categoryId, category_name, articles }) {
   const [isNewArticle, setIsNewArticle] = React.useState(false)
 
   return (
     <SidebarSubList>
-      {articles.map((article) => (
-        <Article key={article.id} article={article} category_name={category_name} />
-      ))}
-      {isNewArticle && <NewArticle categoryId={categoryId} setIsNewArticle={setIsNewArticle} />}
+      {articles.map((article, index) => {
+        return (
+          <ContextMenuProvider
+            key={article.id}
+            container="article"
+            data={article}
+            neighbours={calculateNeighbours(articles, index)}
+          >
+            <Article key={article.id} article={article} category_name={category_name} />
+          </ContextMenuProvider>
+        )
+      })}
+      {isNewArticle && (
+        <NewArticle
+          categoryId={categoryId}
+          article_position={calculateNewPosition(articles)}
+          setIsNewArticle={setIsNewArticle}
+        />
+      )}
 
       <ArticleButton
         onClick={() => {
@@ -29,7 +50,8 @@ export default function Articles({ categoryId, category_name, articles }) {
 }
 
 const SidebarSubList = styled.ul`
-  padding-left: 16px;
+  /* padding-left: 32px; */
+  padding-right: 32px;
 `
 
 const ArticleButton = styled.button`

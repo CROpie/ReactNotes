@@ -2,84 +2,53 @@ import React from 'react'
 import styled from 'styled-components'
 
 import EditItem from './EditItem'
-import ItemButtonGroup from './ItemButtonGroup'
 import PrismCodeblock from './PrismCodeblock'
 
-import { H1_style, H2_style, H3_style, P_style } from '../../styles/mixins'
+import { H1_style, H2_style, H3_style, H4_style, P_style } from '../../styles/mixins'
+import { EditContext } from '../../../contexts/EditCtx'
 
-export default function Item({ item, index, shiftPosition }) {
+export default function Item({ item }) {
   const { element, text, id: item_id, image } = item
 
-  const [isEditing, setIsEditing] = React.useState(0)
-  const [editingText, setEditingText] = React.useState('')
+  const { isEdit } = React.useContext(EditContext)
 
   const renderElement = (element, text, item_id, image) => {
     switch (element) {
       case 'h1':
-        return (
-          <H1
-            onDoubleClick={() => {
-              setIsEditing(item_id)
-              setEditingText(text)
-            }}
-          >
-            {text}
-          </H1>
-        )
+        return <H1>{text}</H1>
       case 'h2':
-        return (
-          <H2
-            onDoubleClick={() => {
-              setIsEditing(item_id)
-              setEditingText(text)
-            }}
-          >
-            {text}
-          </H2>
-        )
+        return <H2>{text}</H2>
       case 'h3':
-        return (
-          <H3
-            onDoubleClick={() => {
-              setIsEditing(item_id)
-              setEditingText(text)
-            }}
-          >
-            {text}
-          </H3>
-        )
+        return <H3>{text}</H3>
+      case 'h4':
+        return <H4>{text}</H4>
       case 'p':
+        return <P>{text}</P>
+      case 'ol':
+        const orderedList = JSON.parse(text)
         return (
-          <P
-            onDoubleClick={() => {
-              setIsEditing(item_id)
-              setEditingText(text)
-            }}
-          >
-            {text}
-          </P>
+          <OrderedList>
+            {orderedList.map((item, index) => (
+              <ListItem key={index}>{item}</ListItem>
+            ))}
+          </OrderedList>
         )
+
+      case 'ul':
+        const unorderedList = JSON.parse(text)
+        return (
+          <UnorderedList>
+            {unorderedList.map((item, index) => (
+              <ListItem key={index}>{item}</ListItem>
+            ))}
+          </UnorderedList>
+        )
+
       case 'a':
-        return (
-          <A
-            href={text}
-            on
-            onDoubleClick={() => {
-              setIsEditing(item_id)
-              setEditingText(text)
-            }}
-          >
-            {text}
-          </A>
-        )
+        return <A href={text}>{text}</A>
       case 'code':
         return (
-          <div
-            onDoubleClick={() => {
-              setIsEditing(item_id)
-              setEditingText(text)
-            }}
-          >
+          <div>
             <PrismCodeblock codeBlock={text} />
           </div>
         )
@@ -97,26 +66,17 @@ export default function Item({ item, index, shiftPosition }) {
   }
 
   return (
-    <ItemWrapper>
-      <ItemButtonGroup item_id={item_id} index={index} shiftPosition={shiftPosition} />
-      {isEditing !== item_id && (
+    <ItemWrapper $editing={isEdit === `item-${item_id}` ? 'true' : undefined}>
+      {isEdit !== `item-${item_id}` && (
         <SectionListItem> {renderElement(element, text, item_id, image)}</SectionListItem>
       )}
-      {isEditing === item_id && (
-        <EditItem
-          item={item}
-          editingText={editingText}
-          setEditingText={setEditingText}
-          setIsEditing={setIsEditing}
-        />
-      )}
+      {isEdit === `item-${item_id}` && <EditItem item={item} text={text} />}
     </ItemWrapper>
   )
 }
 
 const ItemWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 4rem 1fr;
+  border: ${(props) => (props.$editing ? '2px dashed red' : 'none')};
 `
 
 const SectionListItem = styled.li`
@@ -135,10 +95,13 @@ const H3 = styled.h3`
   ${H3_style}
 `
 
+const H4 = styled.h4`
+  ${H4_style}
+`
+
 const P = styled.pre`
   font-size: 1.25rem;
   ${P_style}
-  line-height: 1;
 `
 const A = styled.a`
   font-size: 1.25rem;
@@ -166,3 +129,19 @@ const SVGContainer = styled.div`
     height: auto;
   }
 `
+
+const List = `
+  ${P_style}
+  list-style: revert;
+  padding-left: 5rem;
+  display: grid;
+  gap: 8px;
+`
+const OrderedList = styled.ol`
+  ${List}
+  list-style-type: decimal;
+`
+const UnorderedList = styled.ul`
+  ${List}
+`
+const ListItem = styled.li``

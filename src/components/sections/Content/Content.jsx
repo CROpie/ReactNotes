@@ -3,13 +3,14 @@ import styled from 'styled-components'
 
 import Section from './Section'
 import NewSection from './NewSection'
-import PasteSection from './PasteSection'
 
-import { BaseURL } from '../../../constants'
+import ContextMenuProvider from '../../utils/ContextMenuProvider'
+
+import { calculateNeighbours } from '../../utils/calculateNeighbours'
+import { calculateNewPosition } from '../../utils/calcNewPosition'
 
 export default function Content({ sections }) {
   const [sectionOpenArray, setSectionOpenArray] = React.useState([])
-  console.log(sections)
 
   function toggleSection(e, section_id) {
     if (e.shiftKey) {
@@ -36,66 +37,41 @@ export default function Content({ sections }) {
     setSectionOpenArray(newIsSectionOpen)
   }
 
-  /* SHIFT POSITION FUNCTION */
-
-  async function shiftSectionPosition(section_id, index, direction) {
-    console.log(section_id)
-    let swapSectionId
-    if (direction === 'up') {
-      if (index === 0) return
-      swapSectionId = sections[index - 1].id
-    } else if (direction === 'down') {
-      if (index === sections.length - 1) return
-      swapItemId = sections[index + 1].id
-    }
-    console.log(swapSectionId)
-
-    // mutation.mutate({ section_id, swapItemId })
-    patchSectionPosition(section_id, swapSectionId)
-  }
-
-  async function patchSectionPosition(section_id, swapItemId) {
-    const response = await fetch(
-      `${BaseURL}/sectionposition/?section_1_id=${section_id}&section_2_id=${swapItemId}`,
-      {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-      }
-    )
-    if (!response.ok) {
-      throw new Error('Network response was not ok.')
-    }
-    return response.json()
-  }
-
-  /* END OF SHIFT POSITION STUFF*/
-
   return (
-    <>
-      <ul>
-        {sections.map((section, index) => (
-          // isSectionOpen.includes(section.id) &&
-          <Section
-            key={section.id}
-            section={section}
-            toggleSection={toggleSection}
-            isSectionOpen={sectionOpenArray.includes(section.id)}
-            index={index}
-            shiftSectionPosition={shiftSectionPosition}
-          />
-        ))}
-      </ul>
+    <Wrapper>
+      <SectionList>
+        {sections.map((section, index) => {
+          return (
+            <ContextMenuProvider
+              key={section.id}
+              container="section"
+              data={section}
+              neighbours={calculateNeighbours(sections, index)}
+            >
+              <Section
+                section={section}
+                toggleSection={toggleSection}
+                isSectionOpen={sectionOpenArray.includes(section.id)}
+              />
+            </ContextMenuProvider>
+          )
+        })}
+      </SectionList>
       <SideButtonWrapper>
-        <PasteSection section_position={sections.length} />
-        <NewSection section_position={sections.length} />
+        <NewSection section_position={calculateNewPosition(sections)} />
       </SideButtonWrapper>
-    </>
+    </Wrapper>
   )
 }
 
-const SideButtonWrapper = styled.div`
+const Wrapper = styled.div`
   display: grid;
-  grid-template-columns: 4rem 1fr;
-  /* border: 2px dotted purple; */
-  place-items: center;
+  gap: 16px;
 `
+
+const SectionList = styled.ul`
+  display: grid;
+  gap: 16px;
+`
+
+const SideButtonWrapper = styled.div``

@@ -3,90 +3,144 @@ import styled from 'styled-components'
 
 import Icon from '../../icons/Icon'
 
-import { BaseURL } from '../../../constants'
-
-import { H1_style, H2_style, H3_style, P_style } from '../../styles/mixins'
-
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useParams } from 'react-router-dom'
+import { H1_style, H2_style, H3_style, H4_style, P_style } from '../../styles/mixins'
 
 import ResizeTextArea from '../../utils/ResizeTextArea'
 import ResizeTextAreaP from '../../utils/ResizeTextAreaP'
+import { EditContext } from '../../../contexts/EditCtx'
 
-export default function EditItem({ item, editingText, setEditingText, setIsEditing }) {
+import { useEditMutation } from '../../utils/useEditMutation'
+
+import ListInput from '../Inputs/ListInput'
+
+export default function EditItem({ item }) {
   const { element, text, id: item_id, image } = item
 
-  const { article_id: articleID } = useParams()
-  const article_id = parseInt(articleID)
+  const [editItemText, setEditItemText] = React.useState(text)
 
-  const queryClient = useQueryClient()
+  const { setIsEdit } = React.useContext(EditContext)
 
-  async function patchItemText({ item_id }) {
-    const response = await fetch(`${BaseURL}/itemtext/`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: item_id, text: editingText }),
-    })
-    if (!response.ok) {
-      throw new Error('Network response was not ok.')
-    }
-    return response.json()
+  const { mutate: editMutate } = useEditMutation()
+
+  const editRef = React.useRef()
+
+  async function handleSubmit() {
+    editMutate(
+      {
+        container: 'item',
+        body: { id: item_id, text: editItemText },
+      },
+      {
+        onSuccess: () => {
+          setIsEdit(``)
+          //   setIsPostError(false)
+        },
+        // onError: () => setIsPostError(true),
+      }
+    )
   }
 
-  const editMutation = useMutation({
-    mutationFn: async ({ item_id }) => patchItemText({ item_id }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sections', article_id] })
-      setIsEditing(0)
-      setEditingText('')
-    },
-    onError: (error) => {
-      console.error('onError something went wrong...', error)
-    },
-  })
+  React.useEffect(() => {
+    editRef.current.focus()
+    editRef.current.select()
+  }, [])
 
-  const renderEditElement = (element, text, item_id) => {
+  const renderEditElement = (element, text) => {
     switch (element) {
       case 'h1':
-        return <InputH1 value={editingText} onChange={(e) => setEditingText(e.target.value)} />
+        return (
+          <InputH1
+            value={editItemText}
+            onChange={(e) => setEditItemText(e.target.value)}
+            ref={editRef}
+          />
+        )
       case 'h2':
-        return <InputH2 value={editingText} onChange={(e) => setEditingText(e.target.value)} />
+        return (
+          <InputH2
+            value={editItemText}
+            onChange={(e) => setEditItemText(e.target.value)}
+            ref={editRef}
+          />
+        )
       case 'h3':
-        return <InputH3 value={editingText} onChange={(e) => setEditingText(e.target.value)} />
+        return (
+          <InputH3
+            value={editItemText}
+            onChange={(e) => setEditItemText(e.target.value)}
+            ref={editRef}
+          />
+        )
+      case 'h4':
+        return (
+          <InputH4
+            value={editItemText}
+            onChange={(e) => setEditItemText(e.target.value)}
+            ref={editRef}
+          />
+        )
+      case 'ol':
+      case 'ul':
+        return (
+          <ListInput
+            tag={element}
+            text={editItemText}
+            setText={setEditItemText}
+            editRef={editRef}
+            edit
+          />
+        )
       case 'a':
-        return <InputP value={editingText} onChange={(e) => setEditingText(e.target.value)} />
+        return (
+          <InputP
+            value={editItemText}
+            onChange={(e) => setEditItemText(e.target.value)}
+            ref={editRef}
+          />
+        )
       case 'p':
-        return <ResizeTextAreaP text={editingText} setText={setEditingText} />
+        return <ResizeTextAreaP text={editItemText} setText={setEditItemText} editRef={editRef} />
       case 'code':
-        return <ResizeTextArea text={editingText} setText={setEditingText} />
+        return <ResizeTextArea text={editItemText} setText={setEditItemText} editRef={editRef} />
       // return <PrismCodeblock codeBlock={text} />
       default:
-        return <div>{text}</div>
+        return (
+          <input
+            value={editItemText}
+            onChange={(e) => setEditItemText(e.target.value)}
+            ref={editRef}
+          />
+        )
     }
   }
 
   return (
-    <div>
-      <SectionListItem>{renderEditElement(element, text, item_id)}</SectionListItem>
+    <ItemEditDiv>
+      {renderEditElement(element, text)}
       <EditButtonsWrapper>
-        <EditSaveWrapper onClick={() => editMutation.mutate({ item_id })}>
+        <EditSaveWrapper onClick={handleSubmit}>
           <Icon id="Save" />
         </EditSaveWrapper>
         <EditCancelWrapper
           onClick={() => {
-            setIsEditing(0)
-            setEditingText('')
+            setIsEdit(``)
+            setEditItemText(text)
           }}
         >
           <Icon id="X" />
         </EditCancelWrapper>
       </EditButtonsWrapper>
-    </div>
+    </ItemEditDiv>
   )
 }
 
-const SectionListItem = styled.li`
-  align-self: center;
+const ItemEditDiv = styled.div`
+  /* padding: 4px 16px;
+
+  border: 2px dotted hsl(var(--black));
+  color: hsl(var(--black));
+  background: var(--primary-hover); */
+  /* border: 2px dotted blue; */
 `
 
 const EditButtonsWrapper = styled.div`
@@ -115,20 +169,30 @@ const EditCancelWrapper = styled.button`
     color: red;
   }
 `
+const EditInput = `
+background: transparent;
+outline: none;
+border: none;
+`
 
 const InputH1 = styled.input`
   ${H1_style}
-  background: transparent;
+  ${EditInput}
 `
 
 const InputH2 = styled.input`
   ${H2_style}
-  background: transparent;
+  ${EditInput}
 `
 
 const InputH3 = styled.input`
   ${H3_style}
-  background: transparent;
+  ${EditInput}
+`
+
+const InputH4 = styled.input`
+  ${H4_style}
+  ${EditInput}
 `
 
 const InputP = styled.input`

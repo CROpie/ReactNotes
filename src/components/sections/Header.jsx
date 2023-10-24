@@ -1,27 +1,27 @@
 import React from 'react'
 import styled from 'styled-components'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { H1_style } from '../styles/mixins'
-
-import { SidebarContext } from '../../contexts/SidebarCtx'
 
 import Logo from '../../assets/BearbeerCrop.png'
 
 export default function Header({ setIsSidebarOpen }) {
   let { category_name, article_name } = useParams()
 
+  let navigate = useNavigate()
+
   if (!category_name) {
     category_name = 'Welcome'
   }
   return (
     <Wrapper>
-      <LHS>
+      <LHS
+        onMouseEnter={() => {
+          setIsSidebarOpen(true)
+        }}
+      >
         {/* <Link to="/">LOGO</Link> */}
-        <ImageContainer
-          onMouseEnter={() => {
-            setIsSidebarOpen(true)
-          }}
-        >
+        <ImageContainer onClick={() => navigate('/')}>
           <img src={Logo} alt="beerbear" />
         </ImageContainer>
       </LHS>
@@ -34,11 +34,13 @@ export default function Header({ setIsSidebarOpen }) {
       ) : (
         <Heading>{category_name}</Heading>
       )}
+      <Side />
     </Wrapper>
   )
 }
 
 const Wrapper = styled.section`
+  z-index: 2;
   display: flex;
   align-items: center;
   position: fixed;
@@ -46,28 +48,35 @@ const Wrapper = styled.section`
   left: 0;
   right: 0;
   background: hsl(var(--black));
+  border-bottom: 4px solid hsl(var(--white));
   /* display: grid;
   grid-template-columns: var(--sidebar-width) 1fr; */
 `
 
-const LHS = styled.div`
+const LHS = styled.button`
   padding-block: 8px;
-  border-top: 2px solid hsl(var(--white));
-  border-bottom: 2px solid hsl(var(--white));
+  /* width: var(--sidebar-width); */
+  /* border-top: 2px solid hsl(var(--white));
+  border-bottom: 2px solid hsl(var(--white)); */
 `
 
 const ImageContainer = styled.div`
   height: 3rem;
+  padding-left: 2rem;
 `
 
 const Heading = styled.h1`
   flex: 1;
   ${H1_style}
   padding-block: 8px;
-  border-left: none;
+  border: none;
   white-space: nowrap;
 `
 
 const ArticleSpan = styled.span`
   color: orange;
+`
+const Side = styled.div`
+  width: 5rem;
+  padding-right: 2rem;
 `

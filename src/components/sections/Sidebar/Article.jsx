@@ -1,27 +1,32 @@
 import React from 'react'
 import styled from 'styled-components'
-import DelArticle from './DelArticle'
 
 import { Link } from 'react-router-dom'
 import { SidebarContext } from '../../../contexts/SidebarCtx'
+import { EditContext } from '../../../contexts/EditCtx'
+
+import EditArticle from './EditArticle'
 
 export default function Article({ article, category_name }) {
   const { id: articleId, article_name } = article
 
   const { setSelectedArticle } = React.useContext(SidebarContext)
+  const { isEdit } = React.useContext(EditContext)
 
   return (
     <SidebarSubListItem>
-      <ArticleButton
-        to={`${category_name}/${articleId}/${article_name}`}
-        onClick={() => {
-          setSelectedArticle(article_name)
-        }}
-      >
-        <LinkText>{article_name}</LinkText>
-
-        <DelArticle articleId={articleId} />
-      </ArticleButton>
+      {isEdit === `article-${articleId}` ? (
+        <EditArticle article_id={articleId} article_name={article_name} />
+      ) : (
+        <ArticleButton
+          to={`${category_name}/${articleId}/${article_name}`}
+          onClick={() => {
+            setSelectedArticle(article_name)
+          }}
+        >
+          <LinkText>{article_name}</LinkText>
+        </ArticleButton>
+      )}
     </SidebarSubListItem>
   )
 }

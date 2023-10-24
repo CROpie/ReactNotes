@@ -2,60 +2,71 @@ import React from 'react'
 import styled from 'styled-components'
 import Icon from '../../icons/Icon'
 
-import { BaseURL } from '../../../constants'
 import { useParams } from 'react-router-dom'
 
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { H2_style } from '../../styles/mixins'
+
+import { usePostMutation } from '../../utils/usePostMutation'
 
 export default function NewSection({ section_position }) {
   const { article_id: articleID } = useParams()
   const article_id = parseInt(articleID)
 
+  const { mutate: postMutate } = usePostMutation()
+
   const [title, setTitle] = React.useState('')
   const [isAddNew, setIsAddNew] = React.useState(false)
+  const [isPostError, setIsPostError] = React.useState(false)
 
-  const queryClient = useQueryClient()
+  const newRef = React.useRef()
 
-  async function postSection() {
-    const response = await fetch(`${BaseURL}/section`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ section_position, article_id, title }),
-    })
-    if (!response.ok) {
-      throw new Error('Network response was not ok.')
-    }
-    return response.json()
+  async function handleSubmit(e) {
+    e.preventDefault()
+    if (!title) return
+    postMutate(
+      {
+        container: 'section',
+        body: { section_position, article_id, title },
+      },
+      {
+        onSuccess: () => {
+          setIsAddNew(false)
+          setIsPostError(false)
+        },
+        onError: () => setIsPostError(true),
+      }
+    )
   }
 
-  const mutation = useMutation({
-    mutationFn: async () => postSection(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sections', article_id] })
-    },
-    onError: (error) => {
-      console.error('onError something went wrong...', error)
-    },
-  })
+  React.useEffect(() => {
+    isAddNew && newRef.current.focus()
+  }, [isAddNew])
 
   return (
     <Wrapper>
       {isAddNew && (
-        <NewSectionForm onSubmit={() => mutation.mutate()}>
+        <NewSectionForm onSubmit={(e) => handleSubmit(e)}>
+          <Blank />
           <NewSectionInput
             type="text"
             placeholder="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            $isError={isPostError}
+            ref={newRef}
           />
           <Button type="submit">
             <Icon id="Save" />
           </Button>
         </NewSectionForm>
       )}
-      <SideButtonNew onClick={() => setIsAddNew(!isAddNew)}>
-        <Icon id="PlusFolder" />
+      <SideButtonNew
+        onClick={() => {
+          setIsAddNew(!isAddNew)
+          setTitle('')
+        }}
+      >
+        <Icon id={isAddNew ? 'MinusFolder' : 'PlusFolder'} />
       </SideButtonNew>
     </Wrapper>
   )
@@ -65,18 +76,15 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 16px;
+  padding-block: 16px;
+
+  background: hsl(var(--code-bg) / 0.25);
 `
 
-const SideButton = styled.button`
-  height: 2rem;
-
-  &:hover {
-    color: red;
-  }
-`
-
-const SideButtonNew = styled(SideButton)`
+const SideButtonNew = styled.button`
   color: var(--text-color);
+  height: 2rem;
   &:hover {
     color: lime;
   }
@@ -85,17 +93,26 @@ const SideButtonNew = styled(SideButton)`
 const NewSectionForm = styled.form`
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 16px;
+`
+
+const Blank = styled.div`
+  height: 2rem;
+  width: 2rem;
 `
 
 const NewSectionInput = styled.input`
-  background: hsl(var(--black));
+  /* background: hsl(var(--black)); */
   ${H2_style}
+  background: ${(props) => (props.$isError ? 'red' : 'hsl(var(--black))')};
+  outline: none;
+  border: none;
 `
 
 const Button = styled.button`
   color: hsl(var(--white));
-  height: 32px;
+  height: 2rem;
 
   &:hover {
     color: var(--primary);

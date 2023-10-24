@@ -1,124 +1,111 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { BaseURL } from '../../../constants'
-
-import { H1_style, H2_style, H3_style, P_style } from '../../styles/mixins'
+import { H1_style, H2_style, H3_style, H4_style, P_style } from '../../styles/mixins'
 
 import Icon from '../../icons/Icon'
 
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useParams } from 'react-router-dom'
+import { usePostMutation } from '../../utils/usePostMutation'
 
 import ResizeTextArea from '../../utils/ResizeTextArea'
 import ResizeTextAreaP from '../../utils/ResizeTextAreaP'
+import ListInput from '../Inputs/ListInput'
 
 export default function NewElementInput({ new_item_position, section_id, newElementTag }) {
   const [text, setText] = React.useState('')
+
   const [selectedImage, setSelectedImage] = React.useState(null)
+  const [isPostError, setIsPostError] = React.useState(false)
 
-  const { article_id: articleID } = useParams()
-  const article_id = parseInt(articleID)
+  const { mutate: postMutate } = usePostMutation()
 
-  const queryClient = useQueryClient()
-
-  async function postItem() {
+  async function handleClick() {
     let image_id = null
     if (selectedImage) {
       image_id = await postImage()
     }
-    const item = {
-      item_position: new_item_position,
-      section_id,
-      element: newElementTag,
-      text,
-      image_id,
-    }
-    console.log(item)
 
-    const response = await fetch(`${BaseURL}/item`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(item),
-    })
-
-    if (!response.ok) {
-      throw new Error('Network response was not ok.')
-    }
-    return response.json()
+    postMutate(
+      {
+        container: 'item',
+        body: {
+          item_position: new_item_position,
+          section_id,
+          element: newElementTag,
+          text,
+          image_id,
+        },
+      },
+      {
+        onSuccess: () => {
+          setText('')
+          setIsPostError(false)
+        },
+        onError: () => setIsPostError(true),
+      }
+    )
   }
-
-  async function postImage() {
-    const formData = new FormData()
-    formData.append('file', selectedImage)
-    const response = await fetch(`${BaseURL}/uploadfile`, {
-      method: 'POST',
-      body: formData,
-    })
-    const json = await response.json()
-    console.log(json)
-    return json.id
-  }
-
-  const mutation = useMutation({
-    mutationFn: async () => postItem(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sections', article_id] })
-      setText('')
-    },
-    onError: (error) => {
-      console.error('onError something went wrong...', error)
-    },
-  })
 
   return (
-    <>
-      {newElementTag && (
-        <SideButtonWrapper>
-          <SideButton onClick={() => mutation.mutate()}>
-            <Icon id="Save" />
-          </SideButton>
-        </SideButtonWrapper>
-      )}
+    <Wrapper $isError={isPostError}>
       {newElementTag === 'h1' && (
-        <H1Input placeholder="HEADING" value={text} onChange={(e) => setText(e.target.value)} />
+        <H1Input placeholder="H1-HEADING" value={text} onChange={(e) => setText(e.target.value)} />
       )}
       {newElementTag === 'h2' && (
-        <H2Input placeholder="HEADING" value={text} onChange={(e) => setText(e.target.value)} />
+        <H2Input placeholder="H2-HEADING" value={text} onChange={(e) => setText(e.target.value)} />
       )}
       {newElementTag === 'h3' && (
-        <H3Input placeholder="HEADING" value={text} onChange={(e) => setText(e.target.value)} />
+        <H3Input placeholder="H3-HEADING" value={text} onChange={(e) => setText(e.target.value)} />
+      )}
+      {newElementTag === 'h4' && (
+        <H4Input placeholder="H4-HEADING" value={text} onChange={(e) => setText(e.target.value)} />
       )}
       {newElementTag === 'p' && (
         <ResizeTextAreaP placeholder="TEXT" text={text} setText={setText} />
       )}
-      {/* {newElementTag === 'code' && (
-        <CodeInput placeholder="TEXT" value={text} onChange={(e) => setText(e.target.value)} />
-      )} */}
+      {(newElementTag === 'ol' || newElementTag === 'ul') && (
+        <ListInput tag={newElementTag} text={text} setText={setText} />
+      )}
       {newElementTag === 'code' && (
         <ResizeTextArea placeholder="TEXT" text={text} setText={setText} />
       )}
       {newElementTag === 'img' && (
-        <input type="file" onChange={(e) => setSelectedImage(e.target.files[0])} />
+        <input type="file" text="alttext" onChange={(e) => setSelectedImage(e.target.files[0])} />
       )}
       {newElementTag === 'a' && (
-        <PInput placeholder="URL" value={text} onChange={(e) => setText(e.target.value)} />
+        <AInput placeholder="URL" value={text} onChange={(e) => setText(e.target.value)} />
       )}
       {newElementTag === 'svg' && (
-        <PInput
+        <AInput
           placeholder="Paste raw SVG data here"
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
       )}
-    </>
+      {newElementTag && (
+        <SideButtonWrapper>
+          <SideButton onClick={() => handleClick()} disabled={text === ''}>
+            <Icon id="Save" />
+          </SideButton>
+        </SideButtonWrapper>
+      )}
+    </Wrapper>
   )
 }
 
-const Wrapper = styled.section``
+const Wrapper = styled.section`
+  display: grid;
+  gap: 8px;
+
+  & > input,
+  & > div > textarea,
+  & > textarea {
+    border: ${(props) => (props.$isError ? '2px solid red' : '2px solid white')};
+  }
+`
 
 const H1Input = styled.input`
-  ${H1_style}
+  ${H1_style};
   background: transparent;
 `
 
@@ -132,21 +119,33 @@ const H3Input = styled.input`
   background: transparent;
 `
 
+const H4Input = styled.input`
+  ${H4_style}
+  background: transparent;
+`
+
+const AInput = styled.input`
+  ${P_style}
+  background: transparent;
+  color: hsl(var(--white));
+`
+
 const PInput = styled.textarea`
   ${P_style}
   background: transparent;
   color: hsl(var(--white));
 `
 
-const SideButtonWrapper = styled.div`
-  display: grid;
-  place-items: center;
-`
+const SideButtonWrapper = styled.div``
 
 const SideButton = styled.button`
   height: 2rem;
   color: var(--text-color);
+  margin: 0 auto;
   &:hover {
     color: lime;
+  }
+  &:disabled {
+    color: grey;
   }
 `

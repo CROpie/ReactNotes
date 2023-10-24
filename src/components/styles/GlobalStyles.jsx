@@ -134,7 +134,7 @@ table {
 
 :root {
   --radius: 0.5rem;
-  --sidebar-width: 15rem;
+  --sidebar-width: 20rem;
   --header-height: 3rem;
 
   /* colours */
@@ -146,7 +146,10 @@ table {
     --red: 0 91% 63%;
     --orange: 13 95% 66%;
     --yellow: 42 91% 68%;
-    --black: 0 0% 0%;
+    /* --black: 0 0% 0%; */
+    --black: 0 0% 5%;
+
+    --code-bg: 243 33% 25%;
    
 
 
@@ -190,6 +193,10 @@ body {
   color: hsl(var(--white));
   font-family: JetBrains;
   font-weight: 500;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 #root {

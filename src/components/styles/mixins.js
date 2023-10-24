@@ -25,6 +25,14 @@ export const H3_style = `
   color: hsl(var(--green-hover));
 `
 
+export const H4_style = `
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: hsl(var(--white));
+`
+
 export const P_style = `
   font-size: 1.25rem;
   line-height: 1;

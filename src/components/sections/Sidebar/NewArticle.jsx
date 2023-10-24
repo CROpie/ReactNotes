@@ -1,51 +1,46 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { BaseURL } from '../../../constants'
-
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { usePostMutation } from '../../utils/usePostMutation'
 import Icon from '../../icons/Icon'
 
-export default function NewArticle({ categoryId, setIsNewArticle }) {
+export default function NewArticle({ categoryId, article_position, setIsNewArticle }) {
   const [articleName, setArticleName] = React.useState('')
+  const [isPostError, setIsPostError] = React.useState(false)
 
-  const queryClient = useQueryClient()
+  const articleInput = React.useRef()
 
-  async function postArticle(categoryId) {
-    const response = await fetch(`${BaseURL}/article`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ article_name: articleName, category_id: categoryId }),
-    })
-    if (!response.ok) {
-      throw new Error('Network response was not ok.')
-    }
-    return response.json()
+  React.useEffect(() => {
+    articleInput.current.focus()
+  }, [])
+
+  const { mutate: postMutate } = usePostMutation()
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    postMutate(
+      {
+        container: 'article',
+        body: { article_name: articleName, article_position, category_id: categoryId },
+      },
+      {
+        onSuccess: () => {
+          setIsNewArticle(false)
+          setIsPostError(false)
+        },
+        onError: () => setIsPostError(true),
+      }
+    )
   }
 
-  const mutation = useMutation({
-    mutationFn: async (categoryId) => postArticle(categoryId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] })
-      setIsNewArticle(false)
-    },
-    onError: (error) => {
-      console.error('onError something went wrong...', error)
-    },
-  })
-
   return (
-    <NewArticleForm
-      onSubmit={(e) => {
-        e.preventDefault()
-        mutation.mutate(categoryId)
-      }}
-    >
+    <NewArticleForm onSubmit={(e) => handleSubmit(e)} $isError={isPostError}>
       <NewArticleInput
         type="text"
         placeholder="Basics"
         value={articleName}
         onChange={(e) => setArticleName(e.target.value)}
+        ref={articleInput}
       />
       <IconWrapper type="submit">
         <Icon id="Save" />
@@ -63,7 +58,7 @@ const NewArticleForm = styled.form`
 
   border: 2px solid hsl(var(--primary-hover));
   color: hsl(var(--black));
-  background: var(--primary-hover);
+  background: ${(props) => (props.$isError ? 'red' : 'var(--primary-hover)')};
 
   font-size: 1.125rem;
   font-weight: 500;

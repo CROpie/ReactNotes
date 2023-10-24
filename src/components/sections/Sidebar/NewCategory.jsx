@@ -4,49 +4,48 @@ import styled from 'styled-components'
 import { BaseURL } from '../../../constants'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { usePostMutation } from '../../utils/usePostMutation'
 
 import Icon from '../../icons/Icon'
 
-export default function NewCategory({ setIsNewCategory }) {
+export default function NewCategory({ category_position, setIsNewCategory }) {
   const [categoryName, setCategoryName] = React.useState('')
+  const [isPostError, setIsPostError] = React.useState(false)
 
-  const queryClient = useQueryClient()
+  const { mutate: postMutate } = usePostMutation()
 
-  async function postCategory() {
-    const response = await fetch(`${BaseURL}/category`, {
-      method: 'POST',
-      body: JSON.stringify({ category_name: categoryName }),
-      headers: { 'Content-Type': 'application/json' },
-    })
-    if (!response.ok) {
-      throw new Error('Network response was not ok.')
-    }
-    return response.json()
+  const categoryInput = React.useRef()
+
+  React.useEffect(() => {
+    categoryInput.current.focus()
+  }, [])
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    // mutation.mutate()
+    postMutate(
+      {
+        container: 'category',
+        body: { category_name: categoryName, category_position },
+      },
+      {
+        onSuccess: () => {
+          setIsNewCategory(false)
+          setIsPostError(false)
+        },
+        onError: () => setIsPostError(true),
+      }
+    )
   }
 
-  const mutation = useMutation({
-    mutationFn: async () => postCategory(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] })
-      setIsNewCategory(false)
-    },
-    onError: (error) => {
-      console.error('onError something went wrong...', error)
-    },
-  })
-
   return (
-    <NewCategoryForm
-      onSubmit={(e) => {
-        e.preventDefault()
-        mutation.mutate()
-      }}
-    >
+    <NewCategoryForm onSubmit={(e) => handleSubmit(e)} $isError={isPostError}>
       <NewCategoryInput
         type="text"
         placeholder="Library"
         value={categoryName}
         onChange={(e) => setCategoryName(e.target.value)}
+        ref={categoryInput}
       />
       <IconWrapper type="submit">
         <Icon id="Save" />
@@ -68,7 +67,7 @@ const NewCategoryForm = styled.form`
 
   border: 2px solid hsl(var(--black));
   color: hsl(var(--black));
-  background: var(--primary);
+  background: ${(props) => (props.$isError ? 'red' : 'var(--primary)')};
 `
 
 const NewCategoryInput = styled.input`

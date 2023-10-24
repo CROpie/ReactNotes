@@ -1,145 +1,122 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { BaseURL } from '../../../constants'
-
-import DelSection from './DelSection'
-import CopySection from './CopySection'
-
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-
 import Item from './Item'
 import NewItem from './NewItem'
 import { H2_style } from '../../styles/mixins'
 
 import ContextMenuProvider from '../../utils/ContextMenuProvider'
-export default function Section({
-  section,
-  toggleSection,
-  isSectionOpen,
-  index,
-  shiftSectionPosition,
-}) {
-  const { items, id: section_id, article_id, title } = section
-  // console.log('section: ', JSON.stringify(section))
+import Icon from '../../icons/Icon'
 
-  // moved open state to parent(Content) to allow opening and closing of all on shift-click
-  // const [isSectionOpen, setIsSectionOpen] = React.useState(false)
+import { EditContext } from '../../../contexts/EditCtx'
+import EditSection from './EditSection'
 
-  const queryClient = useQueryClient()
+import { calculateNeighbours } from '../../utils/calculateNeighbours'
+import { calculateNewPosition } from '../../utils/calcNewPosition'
 
-  function calculateNewItemPosition() {
-    let highest = 0
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].id > highest) {
-        highest = items[i].id
-      }
-    }
-    return highest + 1
-  }
+export default function Section({ section, toggleSection, isSectionOpen }) {
+  const { items, id: section_id, title } = section
 
-  async function shiftPosition(item_id, index, direction) {
-    let swapItemId
-    if (direction === 'up') {
-      if (index === 0) return
-
-      swapItemId = items[index - 1].id
-    } else if (direction === 'down') {
-      if (index === items.length - 1) return
-      swapItemId = items[index + 1].id
-    }
-
-    mutation.mutate({ item_id, swapItemId })
-  }
-
-  async function patchItemPosition({ item_id, swapItemId }) {
-    const response = await fetch(
-      `${BaseURL}/itemposition/?item_1_id=${item_id}&item_2_id=${swapItemId}`,
-      {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-      }
-    )
-    if (!response.ok) {
-      throw new Error('Network response was not ok.')
-    }
-    return response.json()
-  }
-
-  const mutation = useMutation({
-    mutationFn: async ({ item_id, swapItemId }) => patchItemPosition({ item_id, swapItemId }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sections', article_id] })
-    },
-    onError: (error) => {
-      console.error('onError something went wrong...', error)
-    },
-  })
-
-  function contextDelete() {
-    console.log('Deleting...')
-  }
-
-  const itemContextMenu = [{ id: 1, text: 'Delete', fn: contextDelete }]
+  const { isEdit } = React.useContext(EditContext)
 
   return (
-    <SectionWrapper>
-      <ItemWrapper>
-        <CopySection section={section} />
-        <Button onClick={() => shiftSectionPosition(section_id, index, 'up')}>UP</Button>
-        {/* <SectionHeading onClick={() => setIsSectionOpen(!isSectionOpen)}>{title}</SectionHeading> */}
-        <SectionHeading onClick={(e) => toggleSection(e, section_id)}>{title}</SectionHeading>
-      </ItemWrapper>
+    <Wrapper>
+      <TitleWrapper $editing={isEdit === `section-${section_id}` ? 'true' : undefined}>
+        {isEdit === `section-${section_id}` ? (
+          <EditSection section_id={section_id} title={title} />
+        ) : (
+          <SectionHeading onClick={(e) => toggleSection(e, section_id)}>
+            <Blank />
+            <h2>{title}</h2>
+            <StyledIcon id={isSectionOpen ? 'ChevronUp' : 'ChevronDown'} />
+          </SectionHeading>
+        )}
+      </TitleWrapper>
 
-      {isSectionOpen && (
-        <SectionList>
-          {/* The data itself */}
-          {items.map((item, index) => (
-            <ContextMenuProvider menu={itemContextMenu}>
-              <Item
-                key={item.id}
-                item={item}
-                index={index}
-                shiftPosition={shiftPosition}
-                toggleSection={toggleSection}
-              />
-            </ContextMenuProvider>
-          ))}
+      <ItemsWrapper>
+        {isSectionOpen && (
+          <SectionList>
+            {/* The data itself */}
+            {items.map((item, index) => {
+              return (
+                <ContextMenuProvider
+                  key={item.id}
+                  container="item"
+                  data={item}
+                  neighbours={calculateNeighbours(items, index)}
+                >
+                  <Item item={item} index={index} toggleSection={toggleSection} />
+                </ContextMenuProvider>
+              )
+            })}
+            {/* NewItemInput + NewElementButton + ElementSelect */}
+          </SectionList>
+        )}
+      </ItemsWrapper>
 
-          {/* NewItemInput + NewElementButton + ElementSelect */}
-          <NewItem section_id={section_id} new_item_position={calculateNewItemPosition()} />
-
-          {/* Allow removal of sections only when they have no items remaining */}
-          {items.length < 1 && (
-            <ItemWrapper>
-              <DelSection section_id={section_id} />
-            </ItemWrapper>
-          )}
-        </SectionList>
-      )}
-    </SectionWrapper>
+      <NewItemWrapper>
+        {isSectionOpen && (
+          <SectionNew>
+            <NewItem section_id={section_id} new_item_position={calculateNewPosition(items)} />
+          </SectionNew>
+        )}
+      </NewItemWrapper>
+    </Wrapper>
   )
 }
 
-const SectionWrapper = styled.section`
+const Wrapper = styled.section`
+  /* border: 1px dashed hsl(var(--green) / 0.5); */
+`
+const TitleWrapper = styled.div`
   padding-block: 16px;
-  /* border: 1px dotted lightblue; */
+  background: hsl(var(--code-bg) / 0.75);
+  border: ${(props) => (props.$editing ? '2px dashed red' : 'none')};
+
+  &:hover {
+    background: hsl(var(--code-bg) / 0.9);
+  }
+`
+const ItemsWrapper = styled.div`
+  background: hsl(var(--code-bg) / 0.5);
+`
+
+const NewItemWrapper = styled.div`
+  background: hsl(var(--code-bg) / 0.5);
 `
 
 const SectionList = styled.ul`
   display: grid;
   gap: 16px;
-`
-
-const ItemWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 4rem 1fr;
+  /* margin-bottom: 16px; */
+  padding: 16px;
 `
 
 const SectionHeading = styled.button`
   ${H2_style}
+  margin: 0 auto;
+  /* margin-bottom: 16px; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--primary);
+
+  /* background: hsl(var(--code-bg) / 0.5); */
+  /* margin-top: -16px;
+  margin-left: -16px;
+  margin-right: -16px; */
 `
 
-const Button = styled.button`
-  color: white;
+const StyledIcon = styled(Icon)`
+  height: 2rem;
+`
+
+const Blank = styled.div`
+  height: 2rem;
+  width: 2rem;
+`
+
+const SectionNew = styled.div`
+  padding: 16px;
 `

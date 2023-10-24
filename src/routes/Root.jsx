@@ -14,11 +14,17 @@ function categoryQuery() {
 }
 
 async function getCategories() {
-  const response = await fetch(`${BaseURL}/category`)
+  const response = await fetch(`${BaseURL}/categories`)
   if (!response.ok) {
     throw new Error('Network response was not ok.')
   }
-  return response.json()
+  const json = await response.json()
+  // ensure sorted by category_position and article_position
+  json.sort((a, b) => a.category_position - b.category_position)
+  json.forEach((category) => {
+    category.articles.sort((a, b) => a.article_position - b.article_position)
+  })
+  return json
 }
 
 export const sidebarLoader = (queryClient) => async () => {

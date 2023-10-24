@@ -2,14 +2,17 @@ import React from 'react'
 import styled from 'styled-components'
 
 import Articles from './Articles'
-import DelCategory from './DelCategory'
+import Icon from '../../icons/Icon'
 
 import { SidebarContext } from '../../../contexts/SidebarCtx'
+import { EditContext } from '../../../contexts/EditCtx'
+import EditCategory from './EditCategory'
 
 export default function Category({ category }) {
   const { id: categoryId, category_name, articles } = category
 
   const { openCategory, setOpenCategory } = React.useContext(SidebarContext)
+  const { isEdit } = React.useContext(EditContext)
 
   function handleOpenCategory(id) {
     if (openCategory === id) {
@@ -20,12 +23,16 @@ export default function Category({ category }) {
   }
 
   return (
+    // <CategoryListItem onMouseEnter={() => setOpenCategory(categoryId)}>
     <CategoryListItem>
-      <CategoryButton onClick={() => handleOpenCategory(categoryId)}>
-        <p>{category_name}</p>
+      {isEdit === `category-${categoryId}` ? (
+        <EditCategory category_id={categoryId} category_name={category_name} />
+      ) : (
+        <CategoryButton onClick={() => handleOpenCategory(categoryId)}>
+          {category_name}
+        </CategoryButton>
+      )}
 
-        <DelCategory categoryId={categoryId} />
-      </CategoryButton>
       {openCategory === categoryId && (
         <Articles articles={articles} categoryId={categoryId} category_name={category_name} />
       )}
@@ -40,10 +47,7 @@ const CategoryListItem = styled.li`
 
 const CategoryButton = styled.button`
   width: 100%;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  text-align: start;
 
   font-size: 1.5rem;
   font-weight: 700;

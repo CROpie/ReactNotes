@@ -10,6 +10,12 @@ import DownArrow from './DownArrow'
 import MinusPage from './MinusPage'
 import Paste from './Paste'
 import Copy from './Copy'
+import MinusFolder from './MinusFolder'
+import ChevronUp from './ChevronUp'
+import ChevronDown from './ChevronDown'
+import Edit from './Edit'
+import Cut from './Cut'
+
 const icons = {
   Save,
   Trash,
@@ -21,6 +27,11 @@ const icons = {
   MinusPage,
   Paste,
   Copy,
+  MinusFolder,
+  ChevronUp,
+  ChevronDown,
+  Edit,
+  Cut,
 }
 
 const Icon = ({ id, height, color, size, strokeWidth, ...delegated }) => {

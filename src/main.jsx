@@ -13,6 +13,7 @@ import Test from './routes/Test'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ContextMenuCtxProvider } from './contexts/ContextMenuCtx'
+import { EditCtxProvider } from './contexts/EditCtx'
 
 const queryClient = new QueryClient()
 
@@ -38,12 +39,14 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ContextMenuCtxProvider>
-        <SidebarCtxProvider>
-          <GlobalStyles />
-          <RouterProvider router={router} />
-        </SidebarCtxProvider>
-      </ContextMenuCtxProvider>
+      <EditCtxProvider>
+        <ContextMenuCtxProvider>
+          <SidebarCtxProvider>
+            <GlobalStyles />
+            <RouterProvider router={router} />
+          </SidebarCtxProvider>
+        </ContextMenuCtxProvider>
+      </EditCtxProvider>
     </QueryClientProvider>
   </React.StrictMode>
 )

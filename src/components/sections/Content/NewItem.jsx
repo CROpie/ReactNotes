@@ -22,40 +22,49 @@ export default function NewItem({ section_id, new_item_position }) {
     in the current section.
     */
   return (
-    <>
+    <Wrapper>
+      {newElementSection === section_id && (
+        <NewElementInput
+          new_item_position={new_item_position}
+          section_id={section_id}
+          newElementTag={newElementTag}
+        />
+      )}
+
       <ItemWrapper>
         {newElementSection === section_id && (
-          <NewElementInput
-            new_item_position={new_item_position}
-            section_id={section_id}
-            newElementTag={newElementTag}
-          />
+          <ElementSelect newElementTag={newElementTag} setNewElementTag={setNewElementTag} />
         )}
-      </ItemWrapper>
 
-      <ItemWrapper>
-        <SideButtonWrapper onClick={() => handleClickCreateNewElement(section_id)}>
+        <SideButtonWrapper
+          onClick={() => handleClickCreateNewElement(section_id)}
+          is_new={newElementSection}
+        >
           {newElementSection ? <Icon id="MinusPage" /> : <Icon id="PlusPage" />}
         </SideButtonWrapper>
-
-        {newElementSection === section_id && <ElementSelect setNewElementTag={setNewElementTag} />}
       </ItemWrapper>
-    </>
+    </Wrapper>
   )
 }
 
-const ItemWrapper = styled.div`
+const Wrapper = styled.div`
   display: grid;
-  grid-template-columns: 4rem 1fr;
+  gap: 32px;
+`
+
+const ItemWrapper = styled.div`
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 `
 
 const SideButtonWrapper = styled.button`
-  display: grid;
-  place-items: center;
   height: 2rem;
   color: var(--text-color);
 
   &:hover {
-    color: lime;
+    color: ${(props) => (props.is_new ? 'hsl(var(--red))' : 'hsl(var(--green))')};
   }
 `
