@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 
 import EditItem from './EditItem'
-import PrismCodeblock from './PrismCodeblock'
+import PrismCodeblock from '../Inputs/PrismCodeblock'
 
 import { H1_style, H2_style, H3_style, H4_style, P_style } from '../../styles/mixins'
 import { EditContext } from '../../../contexts/EditCtx'
@@ -48,9 +48,9 @@ export default function Item({ item }) {
         return <A href={text}>{text}</A>
       case 'code':
         return (
-          <div>
+          <CodeblockContainer>
             <PrismCodeblock codeBlock={text} />
-          </div>
+          </CodeblockContainer>
         )
       case 'img':
         return (
@@ -99,20 +99,33 @@ const H4 = styled.h4`
   ${H4_style}
 `
 
-const P = styled.pre`
-  font-size: 1.25rem;
+const P = styled.p`
   ${P_style}
+  white-space: pre-wrap;
+  line-height: 1.5;
 `
 const A = styled.a`
-  font-size: 1.25rem;
   ${P_style}
   text-decoration: underline;
 `
 
+const CodeblockContainer = styled.div`
+  /* display: none; */
+  width: 100%;
+`
+
 const ImageContainer = styled.div`
-  height: 500px;
+  min-height: 50px;
+  max-height: 500px;
+  width: 100%;
+
   margin: 0 auto;
-  border: 2px solid lime;
+  border: 2px solid hsl(var(--purple));
+
+  & > img {
+    min-width: auto;
+    max-width: 100%;
+  }
 `
 
 const Image = styled.img`

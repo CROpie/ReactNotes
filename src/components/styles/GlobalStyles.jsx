@@ -212,7 +212,7 @@ a {
 }
 
 a:visited {
-  color: inherit;
+  color: #4949ff;
 }
 
 input, select, button {

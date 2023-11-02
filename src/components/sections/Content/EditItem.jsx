@@ -5,13 +5,12 @@ import Icon from '../../icons/Icon'
 
 import { H1_style, H2_style, H3_style, H4_style, P_style } from '../../styles/mixins'
 
-import ResizeTextArea from '../../utils/ResizeTextArea'
-import ResizeTextAreaP from '../../utils/ResizeTextAreaP'
 import { EditContext } from '../../../contexts/EditCtx'
 
 import { useEditMutation } from '../../utils/useEditMutation'
 
 import ListInput from '../Inputs/ListInput'
+import AutoResizableTextarea from '../Inputs/AutoResizableTextarea'
 
 export default function EditItem({ item }) {
   const { element, text, id: item_id, image } = item
@@ -40,10 +39,12 @@ export default function EditItem({ item }) {
     )
   }
 
-  React.useEffect(() => {
-    editRef.current.focus()
-    editRef.current.select()
-  }, [])
+  // React.useEffect(() => {
+  //   if (editRef.current) {
+  //     editRef.current.focus()
+  //     editRef.current.select()
+  //   }
+  // }, [])
 
   const renderEditElement = (element, text) => {
     switch (element) {
@@ -99,10 +100,14 @@ export default function EditItem({ item }) {
           />
         )
       case 'p':
-        return <ResizeTextAreaP text={editItemText} setText={setEditItemText} editRef={editRef} />
+        return (
+          <AutoResizableTextarea text={editItemText} setText={setEditItemText} editRef={editRef} />
+        )
+
       case 'code':
-        return <ResizeTextArea text={editItemText} setText={setEditItemText} editRef={editRef} />
-      // return <PrismCodeblock codeBlock={text} />
+        return (
+          <AutoResizableTextarea text={editItemText} setText={setEditItemText} editRef={editRef} />
+        )
       default:
         return (
           <input
@@ -196,7 +201,7 @@ const InputH4 = styled.input`
 `
 
 const InputP = styled.input`
-  font-size: 1.25rem;
+  color: hsl(var(--white));
   ${P_style}
-  background: transparent;
+  ${EditInput}
 `

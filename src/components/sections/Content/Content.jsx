@@ -57,9 +57,8 @@ export default function Content({ sections }) {
           )
         })}
       </SectionList>
-      <SideButtonWrapper>
-        <NewSection section_position={calculateNewPosition(sections)} />
-      </SideButtonWrapper>
+
+      <NewSection section_position={calculateNewPosition(sections)} />
     </Wrapper>
   )
 }
@@ -73,5 +72,3 @@ const SectionList = styled.ul`
   display: grid;
   gap: 16px;
 `
-
-const SideButtonWrapper = styled.div``

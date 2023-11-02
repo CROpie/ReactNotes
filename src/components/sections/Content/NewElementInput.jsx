@@ -7,9 +7,10 @@ import Icon from '../../icons/Icon'
 
 import { usePostMutation } from '../../utils/usePostMutation'
 
-import ResizeTextArea from '../../utils/ResizeTextArea'
-import ResizeTextAreaP from '../../utils/ResizeTextAreaP'
 import ListInput from '../Inputs/ListInput'
+
+import { BaseURL } from '../../../constants'
+import AutoResizableTextarea from '../Inputs/AutoResizableTextarea'
 
 export default function NewElementInput({ new_item_position, section_id, newElementTag }) {
   const [text, setText] = React.useState('')
@@ -18,6 +19,18 @@ export default function NewElementInput({ new_item_position, section_id, newElem
   const [isPostError, setIsPostError] = React.useState(false)
 
   const { mutate: postMutate } = usePostMutation()
+
+  async function postImage() {
+    const formData = new FormData()
+    formData.append('file', selectedImage)
+    const response = await fetch(`${BaseURL}/uploadfile`, {
+      method: 'POST',
+      body: formData,
+    })
+    const json = await response.json()
+
+    return json.id
+  }
 
   async function handleClick() {
     let image_id = null
@@ -40,11 +53,13 @@ export default function NewElementInput({ new_item_position, section_id, newElem
         onSuccess: () => {
           setText('')
           setIsPostError(false)
+          setSelectedImage(null)
         },
         onError: () => setIsPostError(true),
       }
     )
   }
+  console.log(text)
 
   return (
     <Wrapper $isError={isPostError}>
@@ -61,16 +76,27 @@ export default function NewElementInput({ new_item_position, section_id, newElem
         <H4Input placeholder="H4-HEADING" value={text} onChange={(e) => setText(e.target.value)} />
       )}
       {newElementTag === 'p' && (
-        <ResizeTextAreaP placeholder="TEXT" text={text} setText={setText} />
+        <AutoResizableTextarea placeholder="TEXT" text={text} setText={setText} />
       )}
       {(newElementTag === 'ol' || newElementTag === 'ul') && (
         <ListInput tag={newElementTag} text={text} setText={setText} />
       )}
       {newElementTag === 'code' && (
-        <ResizeTextArea placeholder="TEXT" text={text} setText={setText} />
+        <AutoResizableTextarea
+          placeholder="<p>Write your code here</p>"
+          text={text}
+          setText={setText}
+        />
       )}
       {newElementTag === 'img' && (
-        <input type="file" text="alttext" onChange={(e) => setSelectedImage(e.target.files[0])} />
+        <input
+          type="file"
+          text={text}
+          onChange={(e) => {
+            setText(e.target.files[0].name)
+            setSelectedImage(e.target.files[0])
+          }}
+        />
       )}
       {newElementTag === 'a' && (
         <AInput placeholder="URL" value={text} onChange={(e) => setText(e.target.value)} />

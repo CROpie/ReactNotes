@@ -3,31 +3,6 @@ import styled from 'styled-components'
 ;(typeof global !== 'undefined' ? global : window).Prism = Prism
 await import('prismjs/components/prism-python')
 
-{
-  /* <Highlight theme={themes.shadesOfPurple} code={codeBlock} language="jsx"> */
-}
-
-/*
-    theme$h as dracula,
-    theme$g as duotoneDark,
-    theme$f as duotoneLight,
-    theme$e as github,
-    theme$3 as jettwaveDark,
-    theme$2 as jettwaveLight,
-    theme$d as nightOwl,
-    theme$c as nightOwlLight,
-    theme$b as oceanicNext,
-    theme$a as okaidia,
-    theme$1 as oneDark,
-    theme as oneLight,
-    theme$9 as palenight,
-    theme$8 as shadesOfPurple,
-    theme$7 as synthwave84,
-    theme$6 as ultramin,
-    theme$5 as vsDark,
-    theme$4 as vsLight,
-*/
-
 export default function PrismCodeblock({ codeBlock }) {
   return (
     <Highlight theme={themes.shadesOfPurple} code={codeBlock} language="jsx">

@@ -85,6 +85,8 @@ export default function Template() {
 
 const Wrapper = styled.section`
   margin: 0 auto;
-  max-width: 1200px;
+  max-width: 1400px;
   margin-top: 2rem;
+
+  /* border: 2px solid blue; */
 `
