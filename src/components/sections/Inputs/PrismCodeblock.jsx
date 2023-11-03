@@ -1,7 +1,11 @@
 import { Highlight, themes, Prism } from 'prism-react-renderer'
 import styled from 'styled-components'
+
 ;(typeof global !== 'undefined' ? global : window).Prism = Prism
-await import('prismjs/components/prism-python')
+
+;(async () => {
+  await import('prismjs/components/prism-python')
+})()
 
 export default function PrismCodeblock({ codeBlock }) {
   return (
