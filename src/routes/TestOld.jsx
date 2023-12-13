@@ -36,7 +36,7 @@ export default function Test() {
   React.useEffect(() => {
     async function getSections() {
       console.log('Fetching sections...')
-      const response = await fetch(`${BaseURL}/section?article_id=1`)
+      const response = await fetch(`${BaseURL}/section/?article_id=1`)
       if (!response.ok) {
         throw new Error('Network response was not ok.')
       }

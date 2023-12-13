@@ -4,7 +4,7 @@ import { BaseURL } from '../../constants'
 
 async function postContainer({ container, body }) {
   console.log(container, body)
-  const response = await fetch(`${BaseURL}/${container}`, {
+  const response = await fetch(`${BaseURL}/${container}/`, {
     method: 'POST',
     body: JSON.stringify(body),
     headers: { 'Content-Type': 'application/json' },

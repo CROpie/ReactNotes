@@ -21,7 +21,7 @@ function generateImageUrl(image) {
 }
 
 async function getSections(article_id) {
-  const response = await fetch(`${BaseURL}/section?article_id=${article_id}`)
+  const response = await fetch(`${BaseURL}/section/?article_id=${article_id}`)
   if (!response.ok) {
     throw new Error('Network response was not ok.')
   }

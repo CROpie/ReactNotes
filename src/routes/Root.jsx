@@ -14,7 +14,7 @@ function categoryQuery() {
 }
 
 async function getCategories() {
-  const response = await fetch(`${BaseURL}/categories`)
+  const response = await fetch(`${BaseURL}/categories/`)
   if (!response.ok) {
     throw new Error('Network response was not ok.')
   }

@@ -23,7 +23,7 @@ export default function NewElementInput({ new_item_position, section_id, newElem
   async function postImage() {
     const formData = new FormData()
     formData.append('file', selectedImage)
-    const response = await fetch(`${BaseURL}/uploadfile`, {
+    const response = await fetch(`${BaseURL}/uploadfile/`, {
       method: 'POST',
       body: formData,
     })

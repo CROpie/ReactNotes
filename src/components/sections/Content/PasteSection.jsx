@@ -28,7 +28,7 @@ export default function PasteSection({ section_position }) {
   async function pasteSection() {
     const jsonObject = await getClipboardData()
 
-    const response = await fetch(`${BaseURL}/sectionpaste`, {
+    const response = await fetch(`${BaseURL}/sectionpaste/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

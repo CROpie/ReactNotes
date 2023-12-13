@@ -60,7 +60,7 @@ async function pasteContainer({ container, newPosition, parent_id, cutCopy }) {
     }
   }
   console.log(body)
-  const response = await fetch(`${BaseURL}/${container}paste?cutcopy=${cutCopy}`, {
+  const response = await fetch(`${BaseURL}/${container}paste/?cutcopy=${cutCopy}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),

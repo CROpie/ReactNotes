@@ -4,7 +4,7 @@ import { BaseURL } from '../../constants'
 
 async function editCategory({ container, body }) {
   console.log('editing:', container, body)
-  const response = await fetch(`${BaseURL}/${container}text`, {
+  const response = await fetch(`${BaseURL}/${container}text/`, {
     method: 'PATCH',
     body: JSON.stringify(body),
     headers: { 'Content-Type': 'application/json' },
