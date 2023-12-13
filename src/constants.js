@@ -1,6 +1,6 @@
 // export const BaseURL = 'http://127.0.0.1:8000'
-// export const BaseURL = 'https://170.64.192.236:443'
-export const BaseURL = 'https://cropie.store'
+
+export const BaseURL = 'https://api3.cropie.store/'
 
 export const ContextOptions = [
   { id: 1, title: 'up' },
