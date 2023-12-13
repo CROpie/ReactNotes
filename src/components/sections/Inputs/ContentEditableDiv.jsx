@@ -2,7 +2,6 @@ import React from 'react'
 import styled from 'styled-components'
 
 export default function ContentEditableDiv({ text, setText, editRef }) {
-  console.log(text)
   const [another, setAnother] = React.useState(text)
   return (
     // <Wrapper>

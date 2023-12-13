@@ -28,7 +28,6 @@ async function getCategories() {
 }
 
 export const sidebarLoader = (queryClient) => async () => {
-  console.log('inside loader')
   const query = categoryQuery()
 
   const data = queryClient.getQueryData(query.queryKey) ?? (await queryClient.fetchQuery(query))

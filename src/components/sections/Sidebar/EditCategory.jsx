@@ -16,7 +16,6 @@ export default function EditCategory({ category_id, category_name }) {
   const editRef = React.useRef()
 
   async function handleSubmit() {
-    console.log('current editCategoryName: ', editCategoryName)
     editMutate(
       {
         container: 'category',

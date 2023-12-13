@@ -28,7 +28,7 @@ export default function Test() {
   }, [focusNew])
 
   function handleChange(newText, index) {
-    console.log(newText, index)
+    // console.log(newText, index)
     const newListText = [...listText]
     newListText[index] = newText
     setListText(newListText)

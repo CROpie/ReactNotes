@@ -6,8 +6,6 @@ export default function ListInput({ tag, text, setText, editRef, edit }) {
   //   const [listText, setListText] = React.useState([''])
   const [listText, setListText] = React.useState(edit ? JSON.parse(text) : [''])
 
-  console.log('editRef: ', editRef)
-
   /*
     This was working to focus new input fields when they were created, but
     caused errors at random times */

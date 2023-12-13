@@ -28,7 +28,6 @@ export const useEditMutation = () => {
       } else if (container === 'article' || container === 'category') {
         queryClient.invalidateQueries({ queryKey: ['categories'] })
       }
-      console.log('hello')
     },
     onError: (error) => {
       console.error('onError something went wrong...', error)

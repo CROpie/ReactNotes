@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom'
 import { BaseURL } from '../../constants'
 
 async function postContainer({ container, body }) {
-  console.log(container, body)
   const response = await fetch(`${BaseURL}/${container}/`, {
     method: 'POST',
     body: JSON.stringify(body),
@@ -28,7 +27,6 @@ export const usePostMutation = () => {
       } else if (container === 'article' || container === 'category') {
         queryClient.invalidateQueries({ queryKey: ['categories'] })
       }
-      console.log('hello')
     },
     onError: (error) => {
       console.error('onError something went wrong...', error)

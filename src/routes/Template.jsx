@@ -55,7 +55,6 @@ function sectionsQuery(article_id) {
 export const contentLoader =
   (queryClient) =>
   async ({ params }) => {
-    console.log('inside content loader')
     const { article_id: articleID } = params
     const article_id = parseInt(articleID)
 

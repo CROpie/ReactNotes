@@ -59,7 +59,6 @@ export default function NewElementInput({ new_item_position, section_id, newElem
       }
     )
   }
-  console.log(text)
 
   return (
     <Wrapper $isError={isPostError}>
