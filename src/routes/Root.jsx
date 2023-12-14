@@ -8,6 +8,7 @@ import Sidebar from '../components/sections/Sidebar/Sidebar'
 
 import { BaseURL } from '../constants'
 import { useQuery } from '@tanstack/react-query'
+import IntroModal from '../components/utils/IntroModal'
 
 function categoryQuery() {
   return { queryKey: ['categories'], queryFn: getCategories, staleTime: 1000 * 60 * 5 }
@@ -41,8 +42,12 @@ export default function Root() {
 
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false)
 
+  const [showModal, setShowModal] = React.useState(true)
+
   return (
     <Wrapper>
+      {showModal && <IntroModal handleCloseModal={() => setShowModal(false)} />}
+
       <Header setIsSidebarOpen={setIsSidebarOpen} />
       <MainWrapper>
         <SidebarWrapper>

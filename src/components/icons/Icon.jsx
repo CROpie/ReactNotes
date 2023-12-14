@@ -15,6 +15,8 @@ import ChevronUp from './ChevronUp'
 import ChevronDown from './ChevronDown'
 import Edit from './Edit'
 import Cut from './Cut'
+import ArrowLeft from './ArrowLeft'
+import ArrowRight from './ArrowRight'
 
 const icons = {
   Save,
@@ -32,6 +34,8 @@ const icons = {
   ChevronDown,
   Edit,
   Cut,
+  ArrowLeft,
+  ArrowRight,
 }
 
 const Icon = ({ id, height, color, size, strokeWidth, ...delegated }) => {
