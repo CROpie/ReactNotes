@@ -4,8 +4,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { H1_style } from '../styles/mixins'
 
 import Logo from '../../assets/BearbeerCrop.png'
+import Icon from '../icons/Icon'
 
-export default function Header({ setIsSidebarOpen }) {
+export default function Header({ setIsSidebarOpen, setShowModal }) {
   let { category_name, article_name } = useParams()
 
   let navigate = useNavigate()
@@ -34,7 +35,9 @@ export default function Header({ setIsSidebarOpen }) {
       ) : (
         <Heading>{category_name}</Heading>
       )}
-      <Side />
+      <Side>
+        <StyledIcon id="Help" onClick={() => setShowModal(true)} />
+      </Side>
     </Wrapper>
   )
 }
@@ -79,4 +82,17 @@ const ArticleSpan = styled.span`
 const Side = styled.div`
   width: 5rem;
   padding-right: 2rem;
+`
+
+const StyledIcon = styled(Icon)`
+  height: 3rem;
+  width: 3rem;
+  color: white;
+
+  transition: color 0.2s ease-in;
+  cursor: pointer;
+
+  &:hover {
+    color: lime;
+  }
 `

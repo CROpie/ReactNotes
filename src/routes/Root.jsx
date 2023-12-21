@@ -48,7 +48,7 @@ export default function Root() {
     <Wrapper>
       {showModal && <IntroModal handleCloseModal={() => setShowModal(false)} />}
 
-      <Header setIsSidebarOpen={setIsSidebarOpen} />
+      <Header setIsSidebarOpen={setIsSidebarOpen} setShowModal={setShowModal} />
       <MainWrapper>
         <SidebarWrapper>
           {status === 'idle' && <p>...</p>}

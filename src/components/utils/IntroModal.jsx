@@ -17,8 +17,10 @@ const imagePath = 'public/modalImages/'
 // ]
 
 import { images } from '../modalSVGs/modalSVGs'
+import { ModalCtx } from '../../contexts/ModalCtx'
 
 const headings = [
+  'React Notes',
   'Category Menu',
   'Category Menu',
   'Sections',
@@ -29,6 +31,7 @@ const headings = [
   'Context Menu',
 ]
 const texts = [
+  "This app was designed for storing information or interesting things in an organized, logical manner. It's primary function was to provide a platform for storing useful code and notes about various programming languages and associated libraries. For more detailed information about the usage and functions of the app, please click the arrows below.",
   'Open the category menu via the icon in the top-left corner.',
   'This menu is responsible for handling categories and articles (sub-categories).',
   'Clicking on an article retrieves the data of the article from the database in the form of sections and items.',
@@ -40,7 +43,8 @@ const texts = [
 ]
 
 export default function IntroModal({ handleCloseModal }) {
-  const [modalIndex, setModalIndex] = React.useState(0)
+  // const [modalIndex, setModalIndex] = React.useState(0)
+  const { modalIndex, setModalIndex } = React.useContext(ModalCtx)
 
   function handleClickArrow(direction) {
     let tempIndex = modalIndex
@@ -54,10 +58,31 @@ export default function IntroModal({ handleCloseModal }) {
     setModalIndex(tempIndex)
   }
 
+  function handleKeyDown(event) {
+    if (event.key === 'ArrowRight') {
+      handleClickArrow('next')
+    }
+    if (event.key === 'ArrowLeft') {
+      handleClickArrow('prev')
+    }
+    if (event.key === 'Escape') {
+      handleCloseModal()
+    }
+  }
+
+  React.useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [modalIndex])
+
   return (
     <ModalBackground>
       <Modal>
-        <ModalHeadingH2>{`${modalIndex + 1}: ${headings[modalIndex]}`}</ModalHeadingH2>
+        {/* <ModalHeadingH2>{`${modalIndex + 1}: ${headings[modalIndex]}`}</ModalHeadingH2> */}
+        <ModalHeadingH2>{`${headings[modalIndex]}`}</ModalHeadingH2>
         <ModalText>{texts[modalIndex]}</ModalText>
         <ModalImageContainer>
           <div dangerouslySetInnerHTML={{ __html: images[modalIndex] }} />
@@ -128,6 +153,7 @@ const ModalHeadingH1 = styled.h1`
 `
 
 const ModalHeadingH2 = styled.h2`
+  text-align: center;
   font-size: 1.5rem;
 `
 
@@ -162,6 +188,10 @@ const ModalButtonsContainer = styled.div`
 const Button = styled.button`
   border-radius: 50%;
 
+  & > div > svg {
+    transition: color 0.25s ease-in;
+  }
+
   & > div > svg:hover {
     color: green;
   }
@@ -174,13 +204,14 @@ const ImageNextButton = styled.img``
 const ModalCloseButton = styled.button`
   font-size: 1.5rem;
   width: auto;
-  background: lightgrey;
+
   border: 3px solid black;
-  border-radius: 4px;
+  border-radius: 8px;
 
   padding-inline: 16px;
+  transition: background-color 0.25s ease-in, color 0.25s ease-in;
   &:hover {
-    background: black;
+    background: #a507c5;
     color: white;
   }
 `

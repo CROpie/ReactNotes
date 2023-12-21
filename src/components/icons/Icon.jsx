@@ -17,6 +17,7 @@ import Edit from './Edit'
 import Cut from './Cut'
 import ArrowLeft from './ArrowLeft'
 import ArrowRight from './ArrowRight'
+import Help from './Help'
 
 const icons = {
   Save,
@@ -36,6 +37,7 @@ const icons = {
   Cut,
   ArrowLeft,
   ArrowRight,
+  Help,
 }
 
 const Icon = ({ id, height, color, size, strokeWidth, ...delegated }) => {
